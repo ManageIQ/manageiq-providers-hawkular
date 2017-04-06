@@ -1,0 +1,11 @@
+---
+:ems:
+  :ems_hawkular:
+    :event_handling:
+      :event_groups:
+:http_proxy:
+  :hawkular:
+    :host:
+    :password:
+    :port:
+    :user:
