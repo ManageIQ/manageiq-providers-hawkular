@@ -45,8 +45,11 @@ module ManageIQ::Providers
       connection.inventory.get_config_data_for_resource(resource_path)
     end
 
-    def metrics_for_metric_type(metric_path)
-      connection.inventory.list_metrics_for_metric_type(metric_path)
+    def metrics_for_metric_type(feed, metric_type_id)
+      metric_type_path = ::Hawkular::Inventory::CanonicalPath.new(
+        :metric_type_id => metric_type_id, :feed_id => feed
+      )
+      connection.inventory.list_metrics_for_metric_type(metric_type_path)
     end
 
     def raw_availability_data(*args)

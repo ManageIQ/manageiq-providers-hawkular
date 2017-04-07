@@ -144,44 +144,62 @@ module ManageIQ::Providers
       end
 
       def fetch_availability
+        feeds_of_interest = persister.middleware_servers.to_a.map(&:feed).uniq
+        fetch_server_availabilities(feeds_of_interest)
+        fetch_deployment_availabilities(feeds_of_interest)
+      end
+
+      def fetch_deployment_availabilities(feeds)
+        metrics_type_id = 'Deployment%20Status~Deployment%20Status'
+        fetch_availabilities_for(feeds, persister.middleware_deployments, metrics_type_id) do |deployment, availability|
+          deployment.status = process_deployment_availability(availability.try(:[], 'data').try(:first))
+        end
+      end
+
+      def fetch_server_availabilities(feeds)
+        metrics_type_id = 'Server%20Availability~Server%20Availability'
+        fetch_availabilities_for(feeds, persister.middleware_servers, metrics_type_id) do |server, availability|
+          props = server.properties
+
+          props['Availability'] = availability.try(:[], 'data').try { first['value'] } || 'unknown'
+          props['Calculated Server State'] = props['Availability'] == 'up' ? props['Server State'] : props['Availability']
+        end
+      end
+
+      def fetch_availabilities_for(feeds, collection, metric_type_id)
         resources_by_metric_id = {}
         metric_id_by_resource_path = {}
-        collector.feeds.each do |feed|
-          deployment_status_mt_path = ::Hawkular::Inventory::CanonicalPath.new(
-            :metric_type_id => 'Deployment%20Status~Deployment%20Status', :feed_id => feed
-          )
-          deployment_status_metrics = collector.metrics_for_metric_type(deployment_status_mt_path)
-          deployment_status_metrics.each do |deployment_status_metric|
-            deployment_status_metric_path = ::Hawkular::Inventory::CanonicalPath.parse(deployment_status_metric.path)
+
+        feeds.each do |feed|
+          status_metrics = collector.metrics_for_metric_type(feed, metric_type_id)
+          status_metrics.each do |status_metric|
+            status_metric_path = ::Hawkular::Inventory::CanonicalPath.parse(status_metric.path)
             # By dropping metric_id from the canonical path we end up with the resource path
             resource_path = ::Hawkular::Inventory::CanonicalPath.new(
-              :tenant_id    => deployment_status_metric_path.tenant_id,
-              :feed_id      => deployment_status_metric_path.feed_id,
-              :resource_ids => deployment_status_metric_path.resource_ids
+              :tenant_id    => status_metric_path.tenant_id,
+              :feed_id      => status_metric_path.feed_id,
+              :resource_ids => status_metric_path.resource_ids
             )
-            metric_id_by_resource_path[resource_path.to_s] = deployment_status_metric.hawkular_metric_id
+            metric_id_by_resource_path[resource_path.to_s] = status_metric.hawkular_metric_id
           end
         end
-        persister.middleware_deployments.each do |deployment|
-          # Mark default status for all deployments
-          deployment.status = process_availability
-          path = ::Hawkular::Inventory::CanonicalPath.parse(deployment.ems_ref)
-          # for subdeployments use it's parent deployment availability.
-          path = path.up if path.resource_ids.last.include? CGI.escape('/subdeployment=')
-          # Ensure consistency on keys (resource_path) used on metric_id_by_resource_path
-          path = ::Hawkular::Inventory::CanonicalPath.new(:tenant_id    => path.tenant_id,
-                                                          :feed_id      => path.feed_id,
-                                                          :resource_ids => path.resource_ids)
-          path = path.to_s
+        collection.each do |item|
+          yield item, nil
+
+          path = item.model_class.try(:resource_path_for_metrics, item) || item.manager_uuid
           next unless metric_id_by_resource_path.key? path
           metric_id = metric_id_by_resource_path[path]
           resources_by_metric_id[metric_id] = [] unless resources_by_metric_id.key? metric_id
-          resources_by_metric_id[metric_id] << deployment
+          resources_by_metric_id[metric_id] << item
         end
         unless resources_by_metric_id.empty?
           availabilities = collector.raw_availability_data(resources_by_metric_id.keys,
                                                            :limit => 1, :order => 'DESC')
-          parse_availability availabilities, resources_by_metric_id
+          availabilities.each do |availability|
+            resources_by_metric_id[availability['id']].each do |resource|
+              yield resource, availability
+            end
+          end
         end
       end
 
@@ -211,7 +229,7 @@ module ManageIQ::Providers
         inventory_object.middleware_server_group = server.middleware_server_group if inventory_object.respond_to?(:middleware_server_group=)
       end
 
-      def process_availability(availability = nil)
+      def process_deployment_availability(availability = nil)
         if availability.blank? || availability['value'].casecmp('unknown').zero?
           'Unknown'
         elsif availability['value'].casecmp('up').zero?
@@ -221,16 +239,6 @@ module ManageIQ::Providers
         else
           'Unknown'
         end
-      end
-
-      def parse_availability(availabilities, resources_by_metric_id)
-        availabilities.each do |availability|
-          availability_status = process_availability(availability['data'].first)
-          resources_by_metric_id[availability['id']].each do |resource|
-            resource[:status] = availability_status
-          end
-        end
-        resources_by_metric_id
       end
 
       def parse_deployment(deployment, inventory_object)
