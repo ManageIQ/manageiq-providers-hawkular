@@ -1,2 +1,4 @@
 GlobalVars:
   AllowedVariables:
+    - $datawarehouse_log
+    - $mw_log
