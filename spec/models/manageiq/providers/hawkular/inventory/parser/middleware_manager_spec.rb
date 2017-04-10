@@ -26,6 +26,7 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
     parser.persister = persister_double
     parser
   end
+  let(:stubbed_metric_data) { OpenStruct.new(:id => 'm1', :data => [{'timestamp' => 1, 'value' => 'arbitrary value'}]) }
   let(:server) do
     FactoryGirl.create(:hawkular_middleware_server,
                        :name                  => 'Local',
@@ -33,7 +34,8 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
                        :ems_ref               => '/t;Hawkular'\
                                                  "/f;#{the_feed_id}/r;Local~~",
                        :nativeid              => 'Local~~',
-                       :ext_management_system => ems_hawkular)
+                       :ext_management_system => ems_hawkular,
+                       :properties            => { 'Server Status' => 'Inventory Status' })
   end
 
   describe 'parse_datasource' do
@@ -107,7 +109,6 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
   describe 'fetch_availabilities_for' do
     let(:stubbed_resource) { OpenStruct.new(:manager_uuid => '/t;hawkular/f;f1/r;stubbed_resource') }
     let(:stubbed_metric_definition) { OpenStruct.new(:path => '/t;hawkular/f;f1/r;stubbed_resource/m;m1', :hawkular_metric_id => 'm1') }
-    let(:stubbed_metric_data) { OpenStruct.new(:id => 'm1', :data => [{'timestamp' => 1, 'value' => 'arbitrary value'}]) }
 
     before do
       allow(collector_double).to receive(:metrics_for_metric_type).and_return([])
@@ -178,7 +179,6 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
 
   describe 'fetch_deployment_availabilities' do
     let(:stubbed_deployment) { OpenStruct.new(:manager_uuid => '/t;hawkular/f;f1/r;s1/r;d1') }
-    let(:stubbed_metric_data) { OpenStruct.new(:id => 'm1', :data => [{'timestamp' => 1, 'value' => 'up'}]) }
 
     before do
       allow(persister_double).to receive(:middleware_deployments).and_return([stubbed_deployment])
@@ -193,6 +193,8 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
     end
 
     it 'assigns enabled status to a deployment with "up" metric' do
+      stubbed_metric_data.data.first['value'] = 'up'
+
       parser.fetch_deployment_availabilities(%w(f1))
       expect(stubbed_deployment.status).to eq('Enabled')
     end
@@ -205,8 +207,6 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
     end
 
     it 'assigns unknown status to a deployment whose metric is something else than "up" or "down"' do
-      stubbed_metric_data.data.first['value'] = 'this is arbitrary value'
-
       parser.fetch_deployment_availabilities(%w(f1))
       expect(stubbed_deployment.status).to eq('Unknown')
     end
@@ -217,6 +217,43 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
 
       parser.fetch_deployment_availabilities(%w(f1))
       expect(stubbed_deployment.status).to eq('Unknown')
+    end
+  end
+
+  describe 'fetch_server_availabilities' do
+    before do
+      allow(persister_double).to receive(:middleware_servers).and_return([server])
+      allow(parser).to receive(:fetch_availabilities_for)
+        .and_yield(server, stubbed_metric_data)
+    end
+
+    it 'uses fetch_availabilities_for to resolve server availabilities' do
+      parser.fetch_server_availabilities(%w(f1))
+      expect(parser).to have_received(:fetch_availabilities_for)
+        .with(%w(f1), [server], 'Server%20Availability~Server%20Availability')
+    end
+
+    it 'assigns status reported by inventory to a server with "up" metric' do
+      stubbed_metric_data.data.first['value'] = 'up'
+
+      parser.fetch_server_availabilities(%w(f1))
+      expect(server.properties['Availability']).to eq('up')
+      expect(server.properties['Calculated Server State']).to eq(server.properties['Server State'])
+    end
+
+    it 'assigns status reported by metric to a server when its availability metric is something else than "up"' do
+      parser.fetch_server_availabilities(%w(f1))
+      expect(server.properties['Availability']).to eq('arbitrary value')
+      expect(server.properties['Calculated Server State']).to eq('arbitrary value')
+    end
+
+    it 'assigns unknown status to a server with a missing metric' do
+      allow(parser).to receive(:fetch_availabilities_for)
+        .and_yield(server, nil)
+
+      parser.fetch_server_availabilities(%w(f1))
+      expect(server.properties['Availability']).to eq('unknown')
+      expect(server.properties['Calculated Server State']).to eq('unknown')
     end
   end
 

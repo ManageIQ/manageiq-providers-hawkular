@@ -36,6 +36,10 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::Refresher do
     expect(@ems_hawkular.middleware_datasources).not_to be_empty
     expect(@ems_hawkular.middleware_messagings).not_to be_empty
     expect(@ems_hawkular.middleware_deployments.first).to have_attributes(:status => 'Enabled')
+    expect(@ems_hawkular.middleware_servers.first.properties).to have_attributes(
+      'Availability'            => 'unknown',
+      'Calculated Server State' => 'unknown'
+    )
     assert_specific_datasource(@ems_hawkular, 'Local~/subsystem=datasources/data-source=ExampleDS')
     assert_specific_datasource(@ems_hawkular,
                                'Local~/host=master/server=s/subsystem=datasources/data-source=ExampleDS')
