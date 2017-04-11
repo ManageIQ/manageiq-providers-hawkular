@@ -180,18 +180,20 @@ module ManageIQ::Providers
               :feed_id      => status_metric_path.feed_id,
               :resource_ids => status_metric_path.resource_ids
             )
-            metric_id_by_resource_path[resource_path.to_s] = status_metric.hawkular_metric_id
+            metric_id_by_resource_path[URI.decode(resource_path.to_s)] = status_metric.hawkular_metric_id
           end
         end
+
         collection.each do |item|
           yield item, nil
 
-          path = item.model_class.try(:resource_path_for_metrics, item) || item.manager_uuid
+          path = URI.decode(item.model_class.try(:resource_path_for_metrics, item) || item.manager_uuid)
           next unless metric_id_by_resource_path.key? path
           metric_id = metric_id_by_resource_path[path]
           resources_by_metric_id[metric_id] = [] unless resources_by_metric_id.key? metric_id
           resources_by_metric_id[metric_id] << item
         end
+
         unless resources_by_metric_id.empty?
           availabilities = collector.raw_availability_data(resources_by_metric_id.keys,
                                                            :limit => 1, :order => 'DESC')
@@ -248,9 +250,10 @@ module ManageIQ::Providers
 
       def parse_messaging(messaging, inventory_object, config)
         parse_base_item(messaging, inventory_object)
-
         inventory_object.name = messaging.name
-        inventory_object.messaging_type = messaging.to_h['type']['name']
+
+        type_path = ::Hawkular::Inventory::CanonicalPath.parse(messaging.type_path)
+        inventory_object.messaging_type = URI.decode(type_path.resource_type_id)
 
         if !config.empty? && !config['value'].empty? && config['value'].respond_to?(:except)
           inventory_object.properties = config['value'].except('Username', 'Password')
