@@ -18,7 +18,15 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
                        :zone            => zone)
   end
   let(:persister) { ::ManageIQ::Providers::Hawkular::Inventory::Persister::MiddlewareManager.new(ems_hawkular, ems_hawkular) }
-  let(:parser) { described_class.new }
+  let(:collector_double) { instance_double('ManageIQ::Providers::Hawkular::Inventory::Collector::MiddlewareManager') }
+  let(:persister_double) { instance_double('ManageIQ::Providers::Hawkular::Inventory::Persister::MiddlewareManager') }
+  let(:parser) do
+    parser = described_class.new
+    parser.collector = collector_double
+    parser.persister = persister_double
+    parser
+  end
+  let(:stubbed_metric_data) { OpenStruct.new(:id => 'm1', :data => [{'timestamp' => 1, 'value' => 'arbitrary value'}]) }
   let(:server) do
     FactoryGirl.create(:hawkular_middleware_server,
                        :name                  => 'Local',
@@ -26,7 +34,8 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
                        :ems_ref               => '/t;Hawkular'\
                                                  "/f;#{the_feed_id}/r;Local~~",
                        :nativeid              => 'Local~~',
-                       :ext_management_system => ems_hawkular)
+                       :ext_management_system => ems_hawkular,
+                       :properties            => { 'Server Status' => 'Inventory Status' })
   end
 
   describe 'parse_datasource' do
@@ -97,79 +106,154 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
     end
   end
 
-  describe 'parse_availability' do
-    it 'handles simple data' do
-      resources_by_metric_id = {
-        'resource_id_1' => [{}],
-        'resource_id_2' => [{}, {}],
-        'resource_id_3' => [{}],
-        'resource_id_4' => [{}]
-      }
-      availabilities = [
-        {
-          'id'   => 'resource_id_1',
-          'data' => [{ 'value' => 'up' }]
-        },
-        {
-          'id'   => 'resource_id_2',
-          'data' => [{ 'value' => 'down' }]
-        },
-        {
-          'id'   => 'resource_id_3',
-          'data' => [{ 'value' => 'something_else' }]
-        },
-        {
-          'id'   => 'resource_id_4',
-          'data' => []
-        }
-      ]
+  describe 'fetch_availabilities_for' do
+    let(:stubbed_resource) { OpenStruct.new(:manager_uuid => '/t;hawkular/f;f1/r;stubbed_resource') }
+    let(:stubbed_metric_definition) { OpenStruct.new(:path => '/t;hawkular/f;f1/r;stubbed_resource/m;m1', :hawkular_metric_id => 'm1') }
 
-      parsed_resources_with_availability = {
-        'resource_id_1' => [{
-          :status => 'Enabled'
-        }],
-        'resource_id_2' => [
-          {
-            :status => 'Disabled'
-          },
-          {
-            :status => 'Disabled'
-          }
-        ],
-        'resource_id_3' => [{
-          :status => 'Unknown'
-        }],
-        'resource_id_4' => [{
-          :status => 'Unknown'
-        }]
-      }
-      expect(parser.parse_availability(availabilities, resources_by_metric_id))
-        .to eq(parsed_resources_with_availability)
+    before do
+      allow(collector_double).to receive(:metrics_for_metric_type).and_return([])
+      allow(collector_double).to receive(:metrics_for_metric_type)
+        .with('f1', 'metric_type')
+        .and_return([stubbed_metric_definition])
+      allow(collector_double).to receive(:raw_availability_data)
+        .with(%w(m1), hash_including(:order => 'DESC'))
+        .and_return([stubbed_metric_data])
     end
-    it 'handles missing metrics' do
-      resources_by_metric_id = {
-        'resource_id_1' => [{}],
-        'resource_id_2' => [{}],
-        'resource_id_3' => [{}],
-        'resource_id_4' => [{}],
-      }
-      availabilities = [
-        {
-          'id'   => 'resource_id_1',
-          'data' => [{ 'value' => 'up' }]
-        }
-      ]
 
-      parsed_resources_with_availability = {
-        'resource_id_1' => [{
-          :status => 'Enabled'
-        }],
-        'resource_id_2' => [{}],
-        'resource_id_3' => [{}],
-        'resource_id_4' => [{}]
-      }
-      expect(parser.parse_availability(availabilities, resources_by_metric_id))
-        .to eq(parsed_resources_with_availability)
+    def call_subject(feeds = %w(f1), resources = [stubbed_resource])
+      matched_metrics = {}
+      parser.fetch_availabilities_for(feeds, resources, 'metric_type') do |resource, metric|
+        matched_metrics[resource] = metric
+      end
+
+      matched_metrics
+    end
+
+    it 'must query collector for metrics for every feed' do
+      expect(collector_double).to receive(:metrics_for_metric_type).with('f1', 'metric_type')
+      expect(collector_double).to receive(:metrics_for_metric_type).with('f2', 'metric_type')
+
+      parser.fetch_availabilities_for(%w(f2 f1), [], 'metric_type')
+    end
+
+    it 'must call block with missing metrics to allow caller to set defaults' do
+      stubbed_resource.manager_uuid += 'idsuffix'
+
+      matched_metrics = call_subject
+      expect(matched_metrics).to eq(stubbed_resource => nil)
+    end
+
+    it 'must call block with matching resource and metric to allow caller to process the metric' do
+      matched_metrics = call_subject
+      expect(matched_metrics).to eq(stubbed_resource => stubbed_metric_data)
+    end
+
+    it 'must call block handling a metric shared by more than one resource' do
+      stubbed_resource2 = OpenStruct.new(:manager_uuid => '/t;hawkular/f;f1/r;stubbed_resource2')
+      stubbed_metric_definition2 = OpenStruct.new(:path => '/t;hawkular/f;f1/r;stubbed_resource2/m;m1', :hawkular_metric_id => 'm1')
+
+      expect(collector_double).to receive(:metrics_for_metric_type)
+        .with('f1', 'metric_type')
+        .and_return([stubbed_metric_definition, stubbed_metric_definition2])
+
+      matched_metrics = call_subject(%w(f1), [stubbed_resource, stubbed_resource2])
+      expect(matched_metrics).to eq(stubbed_resource => stubbed_metric_data, stubbed_resource2 => stubbed_metric_data)
+    end
+
+    it 'must call block handling resources in more than one feed' do
+      stubbed_resource2 = OpenStruct.new(:manager_uuid => '/t;hawkular/f;another_feed/r;stubbed_resource')
+      stubbed_metric_definition2 = OpenStruct.new(:path => '/t;hawkular/f;another_feed/r;stubbed_resource/m;m2', :hawkular_metric_id => 'm2')
+      stubbed_metric_data2 = OpenStruct.new(:id => 'm2', :data => [{'timestamp' => 1, 'value' => 'other value'}])
+
+      expect(collector_double).to receive(:metrics_for_metric_type)
+        .with('another_feed', 'metric_type')
+        .and_return([stubbed_metric_definition2])
+      expect(collector_double).to receive(:raw_availability_data)
+        .with(%w(m1 m2), hash_including(:order => 'DESC'))
+        .and_return([stubbed_metric_data, stubbed_metric_data2])
+
+      matched_metrics = call_subject(%w(another_feed f1), [stubbed_resource, stubbed_resource2])
+      expect(matched_metrics).to eq(stubbed_resource => stubbed_metric_data, stubbed_resource2 => stubbed_metric_data2)
+    end
+  end
+
+  describe 'fetch_deployment_availabilities' do
+    let(:stubbed_deployment) { OpenStruct.new(:manager_uuid => '/t;hawkular/f;f1/r;s1/r;d1') }
+
+    before do
+      allow(persister_double).to receive(:middleware_deployments).and_return([stubbed_deployment])
+      allow(parser).to receive(:fetch_availabilities_for)
+        .and_yield(stubbed_deployment, stubbed_metric_data)
+    end
+
+    it 'uses fetch_availabilities_for to fetch deployment availabilities' do
+      parser.fetch_deployment_availabilities(%w(f1))
+      expect(parser).to have_received(:fetch_availabilities_for)
+        .with(%w(f1), [stubbed_deployment], 'Deployment%20Status~Deployment%20Status')
+    end
+
+    it 'assigns enabled status to a deployment with "up" metric' do
+      stubbed_metric_data.data.first['value'] = 'up'
+
+      parser.fetch_deployment_availabilities(%w(f1))
+      expect(stubbed_deployment.status).to eq('Enabled')
+    end
+
+    it 'assigns disabled status to a deployment with "down" metric' do
+      stubbed_metric_data.data.first['value'] = 'down'
+
+      parser.fetch_deployment_availabilities(%w(f1))
+      expect(stubbed_deployment.status).to eq('Disabled')
+    end
+
+    it 'assigns unknown status to a deployment whose metric is something else than "up" or "down"' do
+      parser.fetch_deployment_availabilities(%w(f1))
+      expect(stubbed_deployment.status).to eq('Unknown')
+    end
+
+    it 'assigns unknown status to a deployment with a missing metric' do
+      allow(parser).to receive(:fetch_availabilities_for)
+        .and_yield(stubbed_deployment, nil)
+
+      parser.fetch_deployment_availabilities(%w(f1))
+      expect(stubbed_deployment.status).to eq('Unknown')
+    end
+  end
+
+  describe 'fetch_server_availabilities' do
+    before do
+      allow(persister_double).to receive(:middleware_servers).and_return([server])
+      allow(parser).to receive(:fetch_availabilities_for)
+        .and_yield(server, stubbed_metric_data)
+    end
+
+    it 'uses fetch_availabilities_for to resolve server availabilities' do
+      parser.fetch_server_availabilities(%w(f1))
+      expect(parser).to have_received(:fetch_availabilities_for)
+        .with(%w(f1), [server], 'Server%20Availability~Server%20Availability')
+    end
+
+    it 'assigns status reported by inventory to a server with "up" metric' do
+      stubbed_metric_data.data.first['value'] = 'up'
+
+      parser.fetch_server_availabilities(%w(f1))
+      expect(server.properties['Availability']).to eq('up')
+      expect(server.properties['Calculated Server State']).to eq(server.properties['Server State'])
+    end
+
+    it 'assigns status reported by metric to a server when its availability metric is something else than "up"' do
+      parser.fetch_server_availabilities(%w(f1))
+      expect(server.properties['Availability']).to eq('arbitrary value')
+      expect(server.properties['Calculated Server State']).to eq('arbitrary value')
+    end
+
+    it 'assigns unknown status to a server with a missing metric' do
+      allow(parser).to receive(:fetch_availabilities_for)
+        .and_yield(server, nil)
+
+      parser.fetch_server_availabilities(%w(f1))
+      expect(server.properties['Availability']).to eq('unknown')
+      expect(server.properties['Calculated Server State']).to eq('unknown')
     end
   end
 
