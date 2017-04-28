@@ -21,6 +21,20 @@ module ManageIQ::Providers
             server = persister.middleware_servers.find_or_build(eap.path)
             parse_middleware_server(eap, server)
 
+            # if immutable or in container flag is not set, check also the agent resource
+            if server.properties['Immutable'].nil? || server.properties['In Container'].nil?
+              agent_resource_id = 'Local%20JMX~org.hawkular:type%3dhawkular-javaagent'
+              feed_id = ::Hawkular::Inventory::CanonicalPath.parse(eap.path).feed_id
+              agent_resource_path = ::Hawkular::Inventory::CanonicalPath.new(:feed_id      => feed_id,
+                                                                             :resource_ids => [agent_resource_id])
+              agent_config = collector.config_data_for_resource(agent_resource_path.to_s)
+              ['Immutable', 'In Container'].each do |feature|
+                if agent_config.try(:[], 'value').try(:[], feature) == 'true'
+                  server.properties[feature] = 'true'
+                end
+              end
+            end
+
             if server.properties['In Container'] == 'true'
               container_id = collector.container_id(eap.feed)
               if container_id
