@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/status
+    uri: http://127.0.0.1:8080/hawkular/metrics/status
     body:
       encoding: US-ASCII
       string: ''
@@ -17,6 +17,7 @@ http_interactions:
       - hawkular
       Content-Type:
       - application/json
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -41,7 +42,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: get
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/tags/module:inventory,feed:*
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/tags/module:inventory,feed:*
     body:
       encoding: US-ASCII
       string: ''
@@ -56,6 +57,7 @@ http_interactions:
       - hawkular
       Content-Type:
       - application/json
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -86,7 +88,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,restypes:.*\\|WildFly\\
@@ -104,6 +106,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '123'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -134,7 +137,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:rt"}'
@@ -151,6 +154,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '88'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -200,7 +204,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,restypes:.*\\|Platform_Operating\\
@@ -218,6 +222,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '134'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -248,7 +253,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: get
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/tags/module:inventory,feed:*
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/tags/module:inventory,feed:*
     body:
       encoding: US-ASCII
       string: ''
@@ -263,6 +268,7 @@ http_interactions:
       - hawkular
       Content-Type:
       - application/json
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -293,7 +299,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,restypes:.*\\|Domain\\
@@ -311,6 +317,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '120'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 204
@@ -335,7 +342,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,id:Local~~"}'
@@ -352,6 +359,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '98'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -382,7 +390,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,id:Local~~"}'
@@ -399,6 +407,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '98'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -429,7 +438,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,id:Local~~"}'
@@ -446,6 +455,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '98'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -476,7 +486,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,id:Local~~"}'
@@ -493,6 +503,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '98'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -523,7 +534,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,id:Local~~"}'
@@ -540,6 +551,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '98'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -570,7 +582,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,id:Local~~"}'
@@ -587,6 +599,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '98'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -617,7 +630,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,id:Local~~"}'
@@ -634,6 +647,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '98'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -664,7 +678,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,id:Local~~"}'
@@ -681,6 +695,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '98'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -711,7 +726,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,id:Local~~"}'
@@ -728,6 +743,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '98'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -758,7 +774,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,id:Local~~"}'
@@ -775,6 +791,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '98'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -805,7 +822,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,id:Local~~"}'
@@ -822,6 +839,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '98'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -852,7 +870,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,id:Local~~"}'
@@ -869,6 +887,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '98'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -899,7 +918,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,id:Local~~"}'
@@ -916,6 +935,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '98'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -946,7 +966,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,id:Local~~"}'
@@ -963,6 +983,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '98'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -993,7 +1014,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,mtypes:.*\\|Server\\
@@ -1011,6 +1032,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '148'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -1041,7 +1063,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:mt,id:Server%20Availability~Server%20Availability"}'
@@ -1058,6 +1080,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '135'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -1088,7 +1111,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: get
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/status
+    uri: http://127.0.0.1:8080/hawkular/metrics/status
     body:
       encoding: US-ASCII
       string: ''
@@ -1103,6 +1126,7 @@ http_interactions:
       - hawkular
       Content-Type:
       - application/json
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -1127,7 +1151,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/availability/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/availability/raw/query
     body:
       encoding: UTF-8
       string: '{"ids":["AI~R~[79e60ea5d3fb/Local~~]~AT~Server Availability~Server
@@ -1145,6 +1169,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '131'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -1175,7 +1200,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:r,mtypes:.*\\|Deployment\\
@@ -1193,6 +1218,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '144'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -1223,7 +1249,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/strings/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:79e60ea5d3fb,type:mt,id:Deployment%20Status~Deployment%20Status"}'
@@ -1240,6 +1266,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '131'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -1270,7 +1297,7 @@ http_interactions:
   recorded_at: Wed, 26 Apr 2017 13:24:51 GMT
 - request:
     method: post
-    uri: http://jdoe:password@127.0.0.1:8080/hawkular/metrics/availability/raw/query
+    uri: http://127.0.0.1:8080/hawkular/metrics/availability/raw/query
     body:
       encoding: UTF-8
       string: '{"ids":["AI~R~[79e60ea5d3fb/Local~/deployment=hawkular-command-gateway-war.war]~AT~Deployment
@@ -1292,6 +1319,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '585'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
