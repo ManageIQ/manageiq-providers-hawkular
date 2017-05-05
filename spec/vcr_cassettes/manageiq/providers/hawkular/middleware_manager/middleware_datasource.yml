@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://jdoe:password@localhost:8080/hawkular/metrics/gauges/MI~R~%5B1aae80bd1d13%2FLocal~%2Fsubsystem=datasources%2Fdata-source=ExampleDS%5D~MT~Datasource%20Pool%20Metrics~Available%20Count
+    uri: http://localhost:8080/hawkular/metrics/gauges/MI~R~%5B1aae80bd1d13%2FLocal~%2Fsubsystem=datasources%2Fdata-source=ExampleDS%5D~MT~Datasource%20Pool%20Metrics~Available%20Count
     body:
       encoding: US-ASCII
       string: ''
@@ -17,6 +17,7 @@ http_interactions:
       - hawkular
       Content-Type:
       - application/json
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -48,7 +49,7 @@ http_interactions:
   recorded_at: Mon, 24 Apr 2017 19:28:56 GMT
 - request:
     method: get
-    uri: http://jdoe:password@localhost:8080/hawkular/metrics/gauges/MI~R~%5B1aae80bd1d13%2FLocal~%2Fsubsystem=datasources%2Fdata-source=ExampleDS%5D~MT~Datasource%20Pool%20Metrics~Average%20Creation%20Time
+    uri: http://localhost:8080/hawkular/metrics/gauges/MI~R~%5B1aae80bd1d13%2FLocal~%2Fsubsystem=datasources%2Fdata-source=ExampleDS%5D~MT~Datasource%20Pool%20Metrics~Average%20Creation%20Time
     body:
       encoding: US-ASCII
       string: ''
@@ -63,6 +64,7 @@ http_interactions:
       - hawkular
       Content-Type:
       - application/json
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -94,7 +96,7 @@ http_interactions:
   recorded_at: Mon, 24 Apr 2017 19:28:56 GMT
 - request:
     method: get
-    uri: http://jdoe:password@localhost:8080/hawkular/metrics/gauges/MI~R~%5B1aae80bd1d13%2FLocal~%2Fsubsystem=datasources%2Fdata-source=ExampleDS%5D~MT~Datasource%20Pool%20Metrics~Average%20Get%20Time
+    uri: http://localhost:8080/hawkular/metrics/gauges/MI~R~%5B1aae80bd1d13%2FLocal~%2Fsubsystem=datasources%2Fdata-source=ExampleDS%5D~MT~Datasource%20Pool%20Metrics~Average%20Get%20Time
     body:
       encoding: US-ASCII
       string: ''
@@ -109,6 +111,7 @@ http_interactions:
       - hawkular
       Content-Type:
       - application/json
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -140,7 +143,7 @@ http_interactions:
   recorded_at: Mon, 24 Apr 2017 19:28:56 GMT
 - request:
     method: get
-    uri: http://jdoe:password@localhost:8080/hawkular/metrics/gauges/MI~R~%5B1aae80bd1d13%2FLocal~%2Fsubsystem=datasources%2Fdata-source=ExampleDS%5D~MT~Datasource%20Pool%20Metrics~In%20Use%20Count
+    uri: http://localhost:8080/hawkular/metrics/gauges/MI~R~%5B1aae80bd1d13%2FLocal~%2Fsubsystem=datasources%2Fdata-source=ExampleDS%5D~MT~Datasource%20Pool%20Metrics~In%20Use%20Count
     body:
       encoding: US-ASCII
       string: ''
@@ -155,6 +158,7 @@ http_interactions:
       - hawkular
       Content-Type:
       - application/json
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -186,7 +190,7 @@ http_interactions:
   recorded_at: Mon, 24 Apr 2017 19:28:56 GMT
 - request:
     method: get
-    uri: http://jdoe:password@localhost:8080/hawkular/metrics/gauges/MI~R~%5B1aae80bd1d13%2FLocal~%2Fsubsystem=datasources%2Fdata-source=ExampleDS%5D~MT~Datasource%20Pool%20Metrics~Max%20Wait%20Time
+    uri: http://localhost:8080/hawkular/metrics/gauges/MI~R~%5B1aae80bd1d13%2FLocal~%2Fsubsystem=datasources%2Fdata-source=ExampleDS%5D~MT~Datasource%20Pool%20Metrics~Max%20Wait%20Time
     body:
       encoding: US-ASCII
       string: ''
@@ -201,6 +205,7 @@ http_interactions:
       - hawkular
       Content-Type:
       - application/json
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -232,7 +237,7 @@ http_interactions:
   recorded_at: Mon, 24 Apr 2017 19:28:56 GMT
 - request:
     method: get
-    uri: http://jdoe:password@localhost:8080/hawkular/metrics/gauges/MI~R~%5B1aae80bd1d13%2FLocal~%2Fsubsystem=datasources%2Fdata-source=ExampleDS%5D~MT~Datasource%20Pool%20Metrics~Timed%20Out
+    uri: http://localhost:8080/hawkular/metrics/gauges/MI~R~%5B1aae80bd1d13%2FLocal~%2Fsubsystem=datasources%2Fdata-source=ExampleDS%5D~MT~Datasource%20Pool%20Metrics~Timed%20Out
     body:
       encoding: US-ASCII
       string: ''
@@ -247,6 +252,7 @@ http_interactions:
       - hawkular
       Content-Type:
       - application/json
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -278,7 +284,7 @@ http_interactions:
   recorded_at: Mon, 24 Apr 2017 19:28:56 GMT
 - request:
     method: post
-    uri: http://jdoe:password@localhost:8080/hawkular/metrics/metrics/stats/query
+    uri: http://localhost:8080/hawkular/metrics/metrics/stats/query
     body:
       encoding: UTF-8
       string: '{"metrics":{"gauge":["MI~R~[1aae80bd1d13/Local~/subsystem=datasources/data-source=ExampleDS]~MT~Datasource
@@ -301,6 +307,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '884'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -343,7 +350,7 @@ http_interactions:
   recorded_at: Mon, 24 Apr 2017 19:28:57 GMT
 - request:
     method: get
-    uri: http://jdoe:password@localhost:8080/hawkular/metrics/status
+    uri: http://localhost:8080/hawkular/metrics/status
     body:
       encoding: US-ASCII
       string: ''
@@ -358,6 +365,7 @@ http_interactions:
       - hawkular
       Content-Type:
       - application/json
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -382,7 +390,7 @@ http_interactions:
   recorded_at: Mon, 24 Apr 2017 19:28:57 GMT
 - request:
     method: get
-    uri: http://jdoe:password@localhost:8080/hawkular/metrics/status
+    uri: http://localhost:8080/hawkular/metrics/status
     body:
       encoding: US-ASCII
       string: ''
@@ -397,6 +405,7 @@ http_interactions:
       - hawkular
       Content-Type:
       - application/json
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -421,7 +430,7 @@ http_interactions:
   recorded_at: Mon, 24 Apr 2017 19:28:57 GMT
 - request:
     method: post
-    uri: http://jdoe:password@localhost:8080/hawkular/metrics/strings/raw/query
+    uri: http://localhost:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:1aae80bd1d13,type:r,id:Local~~"}'
@@ -438,6 +447,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '98'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -468,7 +478,7 @@ http_interactions:
   recorded_at: Mon, 24 Apr 2017 19:28:57 GMT
 - request:
     method: post
-    uri: http://jdoe:password@localhost:8080/hawkular/metrics/strings/raw/query
+    uri: http://localhost:8080/hawkular/metrics/strings/raw/query
     body:
       encoding: UTF-8
       string: '{"fromEarliest":true,"order":"DESC","tags":"module:inventory,feed:1aae80bd1d13,type:mt"}'
@@ -485,6 +495,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '88'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
@@ -623,7 +634,7 @@ http_interactions:
   recorded_at: Mon, 24 Apr 2017 19:28:57 GMT
 - request:
     method: post
-    uri: http://jdoe:password@localhost:8080/hawkular/metrics/metrics/stats/query
+    uri: http://localhost:8080/hawkular/metrics/metrics/stats/query
     body:
       encoding: UTF-8
       string: '{"metrics":{"gauge":["MI~R~[1aae80bd1d13/Local~/subsystem=datasources/data-source=ExampleDS]~MT~Datasource
@@ -643,6 +654,7 @@ http_interactions:
       - application/json
       Content-Length:
       - '547'
+      Authorization: Basic <%= Base64.encode64("jdoe:password").chomp %>
   response:
     status:
       code: 200
