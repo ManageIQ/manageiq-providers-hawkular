@@ -54,6 +54,7 @@ module ManageIQ::Providers
     end
 
     def collect_stats_metrics(metrics, start_time, end_time, interval)
+      return [{}, {}] if metrics.empty?
       gauge_ids, counter_ids, avail_ids, metrics_ids_map = parse_metrics_ids(metrics)
       starts = start_time.to_i.in_milliseconds
       ends = (end_time + interval).to_i.in_milliseconds + 1
