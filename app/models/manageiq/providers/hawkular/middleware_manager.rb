@@ -432,6 +432,10 @@ module ManageIQ::Providers
       )
     end
 
+    def miq_id_prefix(id_to_prefix = "")
+      "MiQ-region-#{miq_region.guid}-ems-#{guid}-#{id_to_prefix}"
+    end
+
     def self.update_alert(*args)
       operation = args[0][:operation]
       alert = args[0][:alert]
@@ -460,11 +464,11 @@ module ManageIQ::Providers
     end
 
     def alert_manager
-      @alert_manager ||= ManageIQ::Providers::Hawkular::MiddlewareManager::AlertManager.new(alerts_client)
+      @alert_manager ||= ManageIQ::Providers::Hawkular::MiddlewareManager::AlertManager.new(self)
     end
 
     def alert_profile_manager
-      @alert_profile_manager ||= ManageIQ::Providers::Hawkular::MiddlewareManager::AlertProfileManager.new(alerts_client)
+      @alert_profile_manager ||= ManageIQ::Providers::Hawkular::MiddlewareManager::AlertProfileManager.new(self)
     end
 
     private

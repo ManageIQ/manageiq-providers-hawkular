@@ -2,13 +2,15 @@ module ManageIQ::Providers
   class Hawkular::MiddlewareManager::AlertManager
     require 'hawkular/hawkular_client'
 
-    def initialize(alerts_client)
-      @alerts_client = alerts_client
+    def initialize(ems)
+      @ems = ems
+      @alerts_client = ems.alerts_client
     end
 
     def process_alert(operation, miq_alert)
-      group_trigger = convert_to_group_trigger(miq_alert)
+      group_trigger = convert_to_group_trigger(operation, miq_alert)
       group_conditions = convert_to_group_conditions(miq_alert)
+
       case operation
       when :new
         @alerts_client.create_group_trigger(group_trigger)
@@ -25,7 +27,44 @@ module ManageIQ::Providers
       end
     end
 
-    def convert_to_group_trigger(miq_alert)
+    def self.build_hawkular_trigger_id(ems:, alert:)
+      ems.miq_id_prefix("alert-#{extract_alert_id(alert)}")
+    end
+
+    def self.resolve_hawkular_trigger_id(ems:, alert:, alerts_client: nil)
+      alerts_client = ems.alerts_client unless alerts_client
+      trigger_id = build_hawkular_trigger_id(:ems => ems, :alert => alert)
+
+      if alerts_client.list_triggers([trigger_id]).blank?
+        trigger_id = "MiQ-#{extract_alert_id(alert)}"
+      end
+
+      trigger_id
+    end
+
+    private
+
+    def build_hawkular_trigger_id(alert)
+      self.class.build_hawkular_trigger_id(:ems => @ems, :alert => alert)
+    end
+
+    def resolve_hawkular_trigger_id(alert)
+      self.class.resolve_hawkular_trigger_id(:ems => @ems, :alert => alert, :alerts_client => @alerts_client)
+    end
+
+    def self.extract_alert_id(alert)
+      case alert
+      when Hash
+        alert[:id]
+      when Numeric
+        alert
+      else
+        alert.id
+      end
+    end
+    private_class_method :extract_alert_id
+
+    def convert_to_group_trigger(operation, miq_alert)
       eval_method = miq_alert[:conditions][:eval_method]
       firing_match = 'ALL'
       # Storing prefixes for Hawkular Metrics integration
@@ -37,7 +76,14 @@ module ManageIQ::Providers
       when "mw_accumulated_gc_duration"
         context = { 'dataId.hm.type' => 'counter', 'dataId.hm.prefix' => 'hm_c_' }
       end
-      ::Hawkular::Alerts::Trigger.new('id'          => "MiQ-#{miq_alert[:id]}",
+
+      trigger_id = if operation == :new
+                     build_hawkular_trigger_id(miq_alert)
+                   else
+                     resolve_hawkular_trigger_id(miq_alert)
+                   end
+
+      ::Hawkular::Alerts::Trigger.new('id'          => trigger_id,
                                       'name'        => miq_alert[:description],
                                       'description' => miq_alert[:description],
                                       'enabled'     => miq_alert[:enabled],
