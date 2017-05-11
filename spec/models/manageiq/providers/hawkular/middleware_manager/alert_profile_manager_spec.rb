@@ -1,6 +1,13 @@
 describe ManageIQ::Providers::Hawkular::MiddlewareManager::AlertProfileManager do
   let(:client) { double('Hawkular::Alerts') }
-  let(:subject) { described_class.new(client) }
+  let(:stubbed_ems) do
+    ems = instance_double('::ManageIQ::Providers::Hawkular::MiddlewareManager',
+                          :alerts_client => client,
+                          :id            => 5)
+    allow(ems).to receive(:miq_id_prefix) { |id| id }
+    ems
+  end
+  let(:subject) { described_class.new(stubbed_ems) }
 
   let(:server) do
     FactoryGirl.create(:hawkular_middleware_server, :name => 'Serv', :ems_ref => 'c00fee',
@@ -26,11 +33,15 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::AlertProfileManager d
       'bar' => 'hm_some_prefix_MI~R~[feed/nativeid]~MT~bar',
     }
   end
+  let!(:hawkular_alert) do
+    FactoryGirl.create(:miq_alert_middleware, :id => 2)
+  end
 
   context '#process_alert_profile' do
     it ':update_assignments' do
       # Assume alert 2 is added to profile 50, and it was already in profile 49.
-      allow(client).to receive(:get_single_trigger).with('MiQ-2', true).and_return(group_trigger)
+      allow(client).to receive(:get_single_trigger).with('alert-2', true).and_return(group_trigger)
+      allow(client).to receive(:list_triggers).with(['alert-2']).and_return([group_trigger])
       allow(group_trigger).to receive(:context).and_return('miq.alert_profiles' => '49')
       allow(group_trigger).to receive(:context=).with('miq.alert_profiles' => '49,50')
       expect(client).to receive(:update_group_trigger).with(group_trigger)
