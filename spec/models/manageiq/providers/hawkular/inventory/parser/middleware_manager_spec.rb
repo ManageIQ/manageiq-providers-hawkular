@@ -1,4 +1,3 @@
-require 'recursive-open-struct'
 require_relative '../../middleware_manager/hawkular_helper'
 
 describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
@@ -41,11 +40,11 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
   describe 'parse_datasource' do
     it 'handles simple data' do
       # parse_datasource(server, datasource, config)
-      datasource = RecursiveOpenStruct.new(:name => 'ruby-sample-build',
-                                           :id   => 'Local~/subsystem=datasources/data-source=ExampleDS',
-                                           :path => '/t;Hawkular'\
-                                                    "/f;#{the_feed_id}/r;Local~~"\
-                                                    '/r;Local~%2Fsubsystem%3Ddatasources%2Fdata-source%3DExampleDS')
+      datasource = double(:name => 'ruby-sample-build',
+                          :id   => 'Local~/subsystem=datasources/data-source=ExampleDS',
+                          :path => '/t;Hawkular'\
+                            "/f;#{the_feed_id}/r;Local~~"\
+                            '/r;Local~%2Fsubsystem%3Ddatasources%2Fdata-source%3DExampleDS')
       config = {
         'value' => {
           'Driver Name'    => 'h2',
