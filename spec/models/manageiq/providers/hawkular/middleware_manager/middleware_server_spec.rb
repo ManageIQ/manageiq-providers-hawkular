@@ -135,6 +135,18 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareServer do
                      end
   end
 
+  describe '#feed' do
+    it 'unescape escaped characters' do
+      subject.feed = 'master.Unnamed%20Domain'
+      expect(subject.feed).to eq 'master.Unnamed Domain'
+    end
+
+    it 'keeps other characters equal' do
+      subject.feed = 'thisisnormal'
+      expect(subject.feed).to eq 'thisisnormal'
+    end
+  end
+
   describe '#immutable?' do
     it 'is true if "Immutable" is set as true' do
       subject.properties = { 'Immutable' => 'true' }
