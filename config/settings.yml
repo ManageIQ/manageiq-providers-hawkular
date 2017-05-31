@@ -3,9 +3,41 @@
   :ems_hawkular:
     :event_handling:
       :event_groups:
+        :application:
+          :critical:
+          - hawkular_datasource.error
+          - hawkular_datasource_remove.error
+          - hawkular_deployment.error
+          - hawkular_deployment_remove.error
+          - hawkular_event.critical
+          :detail:
+          - hawkular_datasource.ok
+          - hawkular_datasource_remove.ok
+          - hawkular_deployment.ok
+          - hawkular_deployment_remove.ok
+          - hawkular_event
+:ems_refresh:
+  :hawkular:
+    :refresh_interval: 15.minutes
 :http_proxy:
   :hawkular:
     :host:
     :password:
     :port:
     :user:
+:log:
+  :level_datawarehouse: info
+  :level_datawarehouse_in_evm: error
+:product:
+  :datawarehouse_manager: false
+:workers:
+  :worker_base:
+    :event_catcher:
+      :event_catcher_hawkular:
+        :poll: 10.seconds
+      :event_catcher_hawkular_datawarehouse:
+        :alertable_tenants: ['_system', '_ops']
+        :poll: 1.minute
+    :queue_worker_base:
+      :ems_refresh_worker:
+        :ems_refresh_worker_hawkular: {}
