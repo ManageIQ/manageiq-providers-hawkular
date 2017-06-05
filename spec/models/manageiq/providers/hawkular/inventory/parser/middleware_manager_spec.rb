@@ -7,15 +7,7 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
       .slice(*inventory_object.inventory_collection.inventory_object_attributes)
   end
 
-  let(:ems_hawkular) do
-    _guid, _server, zone = EvmSpecHelper.create_guid_miq_server_zone
-    auth = AuthToken.new(:name => "test", :auth_key => "valid-token", :userid => "jdoe", :password => "password")
-    FactoryGirl.create(:ems_hawkular,
-                       :hostname        => 'localhost',
-                       :port            => 8080,
-                       :authentications => [auth],
-                       :zone            => zone)
-  end
+  let(:ems_hawkular) { ems_hawkular_fixture }
   let(:persister) { ::ManageIQ::Providers::Hawkular::Inventory::Persister::MiddlewareManager.new(ems_hawkular, ems_hawkular) }
   let(:collector_double) { instance_double('ManageIQ::Providers::Hawkular::Inventory::Collector::MiddlewareManager') }
   let(:persister_double) { instance_double('ManageIQ::Providers::Hawkular::Inventory::Persister::MiddlewareManager') }
