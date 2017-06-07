@@ -19,9 +19,9 @@ module ManageIQ::Providers
       connect(options).fetch_version_and_status
     rescue URI::InvalidComponentError
       raise MiqException::MiqHostError, "Host '#{hostname}' is invalid"
-    rescue ::Hawkular::BaseClient::HawkularConnectionException
+    rescue ::Hawkular::ConnectionException
       raise MiqException::MiqUnreachableError, "Unable to connect to #{hostname}:#{port}"
-    rescue ::Hawkular::BaseClient::HawkularException => he
+    rescue ::Hawkular::Exception => he
       raise MiqException::MiqInvalidCredentialsError, 'Invalid credentials' if he.status_code == 401
       raise MiqException::MiqHostError, 'Hawkular not found on host' if he.status_code == 404
       raise MiqException::MiqCommunicationsError, he.message
