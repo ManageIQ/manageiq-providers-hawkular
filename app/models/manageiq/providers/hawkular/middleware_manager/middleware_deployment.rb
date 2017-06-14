@@ -1,5 +1,9 @@
 module ManageIQ::Providers
   class Hawkular::MiddlewareManager::MiddlewareDeployment < MiddlewareDeployment
+    def resource_path_for_metrics
+      self.class.resource_path_for_metrics(self)
+    end
+
     def self.resource_path_for_metrics(item)
       path = ::Hawkular::Inventory::CanonicalPath.parse(item.ems_ref)
       # for subdeployments use it's parent deployment availability.
