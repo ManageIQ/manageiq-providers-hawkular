@@ -1,7 +1,15 @@
 module ManageIQ::Providers
   class Hawkular::Inventory::Parser::AvailabilityUpdates < ManagerRefresh::Inventory::Parser
     def parse
+      fetch_server_availabilities
       fetch_deployment_availabilities
+    end
+
+    def fetch_server_availabilities
+      collector.server_updates.each do |item|
+        server = persister.middleware_servers.find_or_build(item.manager_ref[:ems_ref])
+        server.properties = item.options
+      end
     end
 
     def fetch_deployment_availabilities

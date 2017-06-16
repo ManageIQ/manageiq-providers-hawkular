@@ -3,9 +3,6 @@ module ManageIQ::Providers
     class Inventory::Parser::MiddlewareManager < ManagerRefresh::Inventory::Parser
       include ::Hawkular::ClientUtils
 
-      SERVERS_AVAIL_TYPE_ID = 'Server%20Availability~Server%20Availability'.freeze
-      DEPLOYMENTS_AVAIL_TYPE_ID = 'Deployment%20Status~Deployment%20Status'.freeze
-
       def initialize
         super
         @data_index = {}
@@ -168,17 +165,19 @@ module ManageIQ::Providers
       end
 
       def fetch_deployment_availabilities(feeds)
-        fetch_availabilities_for(feeds, persister.middleware_deployments, DEPLOYMENTS_AVAIL_TYPE_ID) do |deployment, availability|
+        collection = persister.middleware_deployments
+        fetch_availabilities_for(feeds, collection, collection.model_class::AVAIL_TYPE_ID) do |deployment, availability|
           deployment.status = process_deployment_availability(availability.try(:[], 'data').try(:first))
         end
       end
 
       def fetch_server_availabilities(feeds)
-        fetch_availabilities_for(feeds, persister.middleware_servers, SERVERS_AVAIL_TYPE_ID) do |server, availability|
+        collection = persister.middleware_servers
+        fetch_availabilities_for(feeds, collection, collection.model_class::AVAIL_TYPE_ID) do |server, availability|
           props = server.properties
 
-          props['Availability'] = availability.try(:[], 'data').try { first['value'] } || 'unknown'
-          props['Calculated Server State'] = props['Availability'] == 'up' ? props['Server State'] : props['Availability']
+          props['Availability'], props['Calculated Server State'] =
+            process_server_availability(props['Server State'], availability.try(:[], 'data').try(:first))
         end
       end
 
@@ -205,6 +204,7 @@ module ManageIQ::Providers
 
           path = URI.decode(item.try(:resource_path_for_metrics) ||
             item.try(:model_class).try(:resource_path_for_metrics, item) ||
+            item.try(:ems_ref) ||
             item.manager_uuid)
           next unless metric_id_by_resource_path.key? path
           metric_id = metric_id_by_resource_path[path]
@@ -247,6 +247,11 @@ module ManageIQ::Providers
 
         inventory_object.middleware_server = persister.middleware_servers.lazy_find(server.ems_ref)
         inventory_object.middleware_server_group = server.middleware_server_group if inventory_object.respond_to?(:middleware_server_group=)
+      end
+
+      def process_server_availability(server_state, availability = nil)
+        avail = availability.try(:[], 'value') || 'unknown'
+        [avail, avail == 'up' ? server_state : avail]
       end
 
       def process_deployment_availability(availability = nil)

@@ -3,6 +3,7 @@ class ManageIQ::Providers::Hawkular::MiddlewareManager::EventCatcher::Stream
     @ems               = ems
     @alerts_client     = ems.alerts_client
     @metrics_client    = ems.metrics_client
+    @inventory_client  = ems.inventory_client
     @collecting_events = false
   end
 
@@ -23,10 +24,12 @@ class ManageIQ::Providers::Hawkular::MiddlewareManager::EventCatcher::Stream
   private
 
   def fetch
+    events = []
     events = fetch_events
-    availabilities = fetch_availabilities
-
-    events.concat(availabilities)
+    events.concat(fetch_availabilities)
+  rescue => err
+    $mw_log.warn "#{log_prefix} Error capturing events #{err}"
+    events
   end
 
   # Each fetch is performed from the time of the most recently caught event or 1 minute back for the first poll.
@@ -41,41 +44,88 @@ class ManageIQ::Providers::Hawkular::MiddlewareManager::EventCatcher::Stream
     new_events = @alerts_client.list_events("startTime" => @start_time, "tags" => "miq.event_type|*", "thin" => true)
     @start_time = new_events.max_by(&:ctime).ctime + 1 unless new_events.empty? # add 1 ms to avoid dups with GTE filter
     new_events
-  rescue => err
-    $mw_log.warn "#{log_prefix} Error capturing events #{err}"
-    []
   end
 
   def fetch_availabilities
     parser = ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager.new
     parser.collector = ManageIQ::Providers::Hawkular::Inventory::Collector::MiddlewareManager.new(@ems, nil)
 
-    fetch_deployment_availabilities(parser)
+    server_avails = fetch_server_availabilities(parser)
+    deploy_avails = fetch_deployment_availabilities(parser)
+
+    server_avails.concat(deploy_avails)
+  end
+
+  def fetch_server_availabilities(parser)
+    # For servers, it's also needed to refresh server state from inventory.
+    $mw_log.debug("#{log_prefix} Retrieving server state from Hawkular inventory")
+
+    server_states = {}
+    @ems.middleware_servers.reload.each do |server|
+      inventoried_server = @inventory_client.get_resource(server.ems_ref, true)
+      server_states[server.id] = inventoried_server.try(:properties).try(:[], 'Server State') || ''
+    end
+
+    # Fetch availabilities and process them together with server state updates.
+    fetch_entities_availabilities(parser, @ems.middleware_servers) do |item, avail|
+      server_state = server_states[item.id]
+      avail_data, calculated_status = parser.process_server_availability(server_state, avail)
+
+      props = item.try(:properties)
+      stored_avail = props.try(:[], 'Availability')
+      stored_state = props.try(:[], 'Server State')
+      stored_calculated = props.try(:[], 'Calculated Server State')
+
+      next nil if stored_avail == avail_data && stored_calculated == calculated_status && stored_state == server_state
+
+      {
+        :ems_ref     => item.ems_ref,
+        :association => :middleware_servers,
+        :data        => {
+          'Availability'            => avail_data,
+          'Server State'            => server_state,
+          'Calculated Server State' => calculated_status
+        }
+      }
+    end
   end
 
   def fetch_deployment_availabilities(parser)
-    # Get list of deployments to retrieve its availabilities
-    deploys = @ems.middleware_deployments.all
-    feeds = deploys.map(&:feed).uniq
+    fetch_entities_availabilities(parser, @ems.middleware_deployments.reload) do |item, avail|
+      status = parser.process_deployment_availability(avail)
+      next nil if item.status == status
 
-    $mw_log.debug("#{log_prefix} Retrieving availabilities for #{deploys.count} deployments in #{feeds.count} feeds.")
-
-    # Get deployment availabilities
-    avails = {}
-    parser.fetch_availabilities_for(feeds, deploys, parser.class::DEPLOYMENTS_AVAIL_TYPE_ID) do |item, avail|
-      avail_data = avail.try(:[], 'data').try(:first)
-      avails[item.id] = {
-        :ems_ref      => item.ems_ref,
-        :association  => :middleware_deployments,
-        :availability => avail_data,
-        :status       => parser.process_deployment_availability(avail_data)
+      {
+        :ems_ref     => item.ems_ref,
+        :association => :middleware_deployments,
+        :data        => {
+          :status => status
+        }
       }
+    end
+  end
+
+  def fetch_entities_availabilities(parser, entities)
+    return {} if entities.blank?
+    log_name = entities.first.class.name.demodulize
+
+    # Get feeds where availabilities should be looked in.
+    feeds = entities.map(&:feed).uniq
+
+    $mw_log.debug("#{log_prefix} Retrieving availabilities for #{entities.count} " \
+                  "#{log_name.pluralize(entities.count)} in #{feeds.count} feeds.")
+
+    # Get availabilities
+    avails = {}
+    parser.fetch_availabilities_for(feeds, entities, entities.first.class::AVAIL_TYPE_ID) do |item, avail|
+      avail_data = avail.try(:[], 'data').try(:first)
+      avails[item.id] = yield(item, avail_data)
 
       # Filter out if availability is unchanged. This way, no refresh is triggered if unnecessary.
-      avails.delete(item.id) if item.status == avails[item.id][:status]
+      avails.delete(item.id) unless avails[item.id]
     end
 
-    $mw_log.debug("#{log_prefix} Availability has changed for #{avails.length} deployments.")
+    $mw_log.debug("#{log_prefix} Availability has changed for #{avails.length} #{log_name.pluralize(avails.length)}.")
     avails.values
   end
 

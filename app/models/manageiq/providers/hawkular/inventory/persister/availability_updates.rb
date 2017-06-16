@@ -3,10 +3,7 @@ module ManageIQ::Providers
     def self.save_deployments(ems, collection)
       ::ActiveRecord::Base.transaction do
         collection.to_a.each do |item|
-          deployment = ::ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareDeployment.find_by(
-            :ext_management_system => ems, :ems_ref => item.manager_uuid
-          )
-
+          deployment = ems.middleware_deployments.find_by(:ems_ref => item.manager_uuid)
           next unless deployment # if deployment is not found in the database, it is ignored.
 
           $mw_log.debug("EMS_#{ems.id}(Persister::AvailabilityUpdates): " \
@@ -18,7 +15,24 @@ module ManageIQ::Providers
       end
     end
 
+    def self.save_servers(ems, collection)
+      ::ActiveRecord::Base.transaction do
+        collection.to_a.each do |item|
+          server = ems.middleware_servers.find_by(:ems_ref => item.manager_uuid)
+          next unless server # if no matching server is in the database, there is nothing to update
+
+          $mw_log.debug("EMS_#{ems.id}(Persister::AvailabilityUpdates): " \
+                        "Updating status to #{item.properties} for server #{server.ems_ref}")
+
+          server.properties = {} unless server.properties
+          server.properties.merge!(item.properties)
+          server.save!
+        end
+      end
+    end
+
     # has_middleware_manager_servers
     has_middleware_manager_deployments(:custom_save_block => method(:save_deployments))
+    has_middleware_manager_servers(:custom_save_block => method(:save_servers))
   end
 end

@@ -58,10 +58,7 @@ class ManageIQ::Providers::Hawkular::MiddlewareManager::EventCatcher::Runner <
           ManagerRefresh::Target.new(:manager     => @ems,
                                      :association => item[:association],
                                      :manager_ref => { :ems_ref => item[:ems_ref] },
-                                     :options     => {
-                                       :availability => item[:availability],
-                                       :status       => item[:status]
-                                     })
+                                     :options     => item[:data])
         end
         $mw_log.debug "#{log_prefix} Queueing refresh of #{targets.count} availabilities."
         EmsRefresh.queue_refresh(targets)
