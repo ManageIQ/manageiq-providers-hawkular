@@ -27,7 +27,6 @@
     :user:
 :log:
   :level_datawarehouse: info
-  :level_datawarehouse_in_evm: error
 :product:
   :datawarehouse_manager: false
 :workers:
