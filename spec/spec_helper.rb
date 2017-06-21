@@ -8,4 +8,6 @@ VCR.configure do |config|
   config.cassette_library_dir = File.join(ManageIQ::Providers::Hawkular::Engine.root, 'spec/vcr_cassettes')
 end
 
+require 'contexts/targeted_avail_updates'
+
 Dir[Rails.root.join("spec/shared/**/*.rb")].each { |f| require f }

@@ -57,8 +57,8 @@ class ManageIQ::Providers::Hawkular::MiddlewareManager::EventCatcher::Stream
   end
 
   def fetch_server_availabilities(parser)
-    # For servers, it's also needed to refresh server state from inventory.
-    $mw_log.debug("#{log_prefix} Retrieving server state from Hawkular inventory")
+    # For servers, it's also needed to refresh server states from inventory.
+    $mw_log.debug("#{log_prefix} Retrieving server states from Hawkular inventory")
 
     server_states = {}
     @ems.middleware_servers.reload.each do |server|
@@ -106,7 +106,7 @@ class ManageIQ::Providers::Hawkular::MiddlewareManager::EventCatcher::Stream
   end
 
   def fetch_entities_availabilities(parser, entities)
-    return {} if entities.blank?
+    return [] if entities.blank?
     log_name = entities.first.class.name.demodulize
 
     # Get feeds where availabilities should be looked in.

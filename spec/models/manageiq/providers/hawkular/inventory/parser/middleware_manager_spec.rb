@@ -180,7 +180,13 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
     let(:stubbed_deployment) { OpenStruct.new(:manager_uuid => '/t;hawkular/f;f1/r;s1/r;d1') }
 
     before do
-      allow(persister_double).to receive(:middleware_deployments).and_return([stubbed_deployment])
+      deployments_collection = [stubbed_deployment]
+      deployments_collection.define_singleton_method(
+        :model_class,
+        -> { ::ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareDeployment }
+      )
+
+      allow(persister_double).to receive(:middleware_deployments).and_return(deployments_collection)
       allow(parser).to receive(:fetch_availabilities_for)
         .and_yield(stubbed_deployment, stubbed_metric_data)
     end
@@ -221,7 +227,13 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
 
   describe 'fetch_server_availabilities' do
     before do
-      allow(persister_double).to receive(:middleware_servers).and_return([server])
+      server_collection = [server]
+      server_collection.define_singleton_method(
+        :model_class,
+        -> { ::ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareServer }
+      )
+
+      allow(persister_double).to receive(:middleware_servers).and_return(server_collection)
       allow(parser).to receive(:fetch_availabilities_for)
         .and_yield(server, stubbed_metric_data)
     end

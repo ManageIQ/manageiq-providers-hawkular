@@ -5,6 +5,8 @@ module ManageIQ::Providers
       fetch_deployment_availabilities
     end
 
+    private
+
     def fetch_server_availabilities
       collector.server_updates.each do |item|
         server = persister.middleware_servers.find_or_build(item.manager_ref[:ems_ref])

@@ -1,6 +1,9 @@
 module ManageIQ::Providers
   class Hawkular::Inventory::AvailabilityUpdates
-    delegate :select, :to => :@targets
+    attr_reader :targets
+
+    delegate :select, :to => :targets
+    delegate :<<, :to => :targets
 
     def initialize(targets)
       @targets = targets
