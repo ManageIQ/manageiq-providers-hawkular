@@ -40,12 +40,30 @@ class ManageIQ::Providers::Hawkular::MiddlewareManager::EventCatcher::Runner <
     event_monitor_handle.start
     event_monitor_handle.each_batch do |events|
       event_monitor_running
+
+      # Separate alerts from avail updates
+      avail_updates, events = events.partition { |e| !e.kind_of?(::Hawkular::Alerts::Alert) }
+
+      # Filter and queue events for processing
       new_events = events.select { |e| whitelist?(e) }
       $mw_log.debug("#{log_prefix} Discarding events #{events - new_events}") if new_events.length < events.length
       if new_events.any?
         $mw_log.debug "#{log_prefix} Queueing events #{new_events}"
         @queue.enq new_events
       end
+
+      # Queue avail updates for processing
+      if avail_updates.any?
+        targets = avail_updates.map do |item|
+          ManagerRefresh::Target.new(:manager     => @ems,
+                                     :association => item[:association],
+                                     :manager_ref => { :ems_ref => item[:ems_ref] },
+                                     :options     => item[:data])
+        end
+        $mw_log.debug "#{log_prefix} Queueing refresh of #{targets.count} availabilities."
+        EmsRefresh.queue_refresh(targets)
+      end
+
       # invoke the configured sleep before the next event fetch
       sleep_poll_normal
     end

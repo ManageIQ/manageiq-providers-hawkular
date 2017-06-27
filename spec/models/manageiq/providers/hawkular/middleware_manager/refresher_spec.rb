@@ -28,9 +28,9 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::Refresher do
     expect(domain.middleware_server_groups).not_to be_empty
     expect(@ems_hawkular.middleware_servers).not_to be_empty
 
-    # check whether the server was associated with the vm
-    server = @ems_hawkular.middleware_servers.first
     # TODO: Restore these expectations
+    # check whether the server was associated with the vm
+    # server = @ems_hawkular.middleware_servers.first
     # expect(server.lives_on_id).to eql(@vm.id)
     # expect(server.lives_on_type).to eql(@vm.type)
     expect(@ems_hawkular.middleware_deployments).not_to be_empty
@@ -118,5 +118,78 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::Refresher do
     expect(@ems_hawkular2.middleware_datasources).not_to be_empty
     expect(@ems_hawkular2.middleware_messagings).not_to be_empty
     assert_specific_datasource(@ems_hawkular2, 'Local~/subsystem=datasources/data-source=ExampleDS')
+  end
+
+  describe "#preprocess_targets" do
+    let(:ems_hawkular) { FactoryGirl.create(:ems_hawkular) }
+    let(:ems_hawkular2) { FactoryGirl.create(:ems_hawkular) }
+    let(:target_server) do
+      ManagerRefresh::Target.new(
+        :manager     => ems_hawkular,
+        :association => :middleware_servers,
+        :manager_ref => { :ems_ref => 'abc' }
+      )
+    end
+    let(:target_deployment) do
+      ManagerRefresh::Target.new(
+        :manager     => ems_hawkular,
+        :association => :middleware_deployments,
+        :manager_ref => { :ems_ref => 'def' }
+      )
+    end
+
+    it "must fallback to just one full graph refresh if ems is a target" do
+      # Set-up
+      targets = [target_server, ems_hawkular]
+      refresher = described_class.new(targets)
+
+      # Try
+      refresher.preprocess_targets
+
+      # Validate
+      expect(refresher.targets_by_ems_id.count).to eq(1)
+      expect(refresher.targets_by_ems_id[ems_hawkular.id].count).to eq(1)
+      expect(refresher.targets_by_ems_id[ems_hawkular.id].first).to eq(ems_hawkular)
+    end
+
+    it "must group multiple availability refreshes in one target" do
+      # Set-up
+      targets = [target_server, target_deployment]
+      refresher = described_class.new(targets)
+
+      # Try
+      refresher.preprocess_targets
+
+      # Validate
+      expect(refresher.targets_by_ems_id.count).to eq(1)
+      expect(refresher.targets_by_ems_id[ems_hawkular.id].count).to eq(1)
+      expect(refresher.targets_by_ems_id[ems_hawkular.id].first)
+        .to be_kind_of(::ManageIQ::Providers::Hawkular::Inventory::AvailabilityUpdates)
+      expect(refresher.targets_by_ems_id[ems_hawkular.id].first.targets)
+        .to contain_exactly(target_server, target_deployment)
+    end
+
+    it "must handle correctly a refresh of two managers" do
+      # Set-up
+      targets = [
+        target_server,
+        ems_hawkular
+      ]
+      targets << ManagerRefresh::Target.new(
+        :manager     => ems_hawkular2,
+        :association => :middleware_servers,
+        :manager_ref => { :ems_ref => 'abc' }
+      )
+
+      # Try
+      refresher = described_class.new(targets)
+      refresher.preprocess_targets
+
+      # Validate
+      expect(refresher.targets_by_ems_id.count).to eq(2)
+      expect(refresher.targets_by_ems_id[ems_hawkular.id].first).to be(ems_hawkular)
+      expect(refresher.targets_by_ems_id[ems_hawkular2.id].first)
+        .to be_kind_of(::ManageIQ::Providers::Hawkular::Inventory::AvailabilityUpdates)
+    end
   end
 end
