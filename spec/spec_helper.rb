@@ -11,3 +11,4 @@ end
 require 'contexts/targeted_avail_updates'
 
 Dir[Rails.root.join("spec/shared/**/*.rb")].each { |f| require f }
+Dir[ManageIQ::Providers::Hawkular::Engine.root.join("spec/support/**/*.rb")].each { |f| require f }

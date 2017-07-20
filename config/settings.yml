@@ -1,6 +1,7 @@
 ---
 :ems:
   :ems_hawkular:
+    :blacklisted_event_names: []
     :event_handling:
       :event_groups:
         :application:
