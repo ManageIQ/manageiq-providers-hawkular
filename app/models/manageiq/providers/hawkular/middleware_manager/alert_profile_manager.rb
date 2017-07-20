@@ -2,8 +2,9 @@ module ManageIQ::Providers
   class Hawkular::MiddlewareManager::AlertProfileManager
     require 'hawkular/hawkular_client'
 
-    def initialize(alerts_client)
-      @alerts_client = alerts_client
+    def initialize(ems)
+      @ems = ems
+      @alerts_client = ems.alerts_client
     end
 
     def process_alert_profile(operation, miq_alert_profile)
@@ -24,12 +25,10 @@ module ManageIQ::Providers
       unless old_assignments_ids.empty?
         to_remove_alerts_ids = old_alerts_ids - new_alerts_ids
         to_add_alerts_ids = new_alerts_ids - old_alerts_ids
-        to_remove_alerts_ids.each do |alert_id|
-          group_trigger = @alerts_client.get_single_trigger "MiQ-#{alert_id}", true
+        retrieve_hawkular_group_triggers(to_remove_alerts_ids).each do |group_trigger|
           unassign_members(group_trigger, profile_id, old_assignments_ids)
         end
-        to_add_alerts_ids.each do |alert_id|
-          group_trigger = @alerts_client.get_single_trigger "MiQ-#{alert_id}", true
+        retrieve_hawkular_group_triggers(to_add_alerts_ids).each do |group_trigger|
           assign_members(group_trigger, profile_id, old_assignments_ids)
         end
       end
@@ -39,8 +38,7 @@ module ManageIQ::Providers
       to_unassign_ids = old_assignments_ids - new_assignments_ids
       to_assign_ids = new_assignments_ids - old_assignments_ids
       if to_unassign_ids.any? || to_assign_ids.any?
-        old_alerts_ids.each do |alert_id|
-          group_trigger = @alerts_client.get_single_trigger "MiQ-#{alert_id}", true
+        retrieve_hawkular_group_triggers(old_alerts_ids).each do |group_trigger|
           unassign_members(group_trigger, profile_id, to_unassign_ids) unless to_unassign_ids.empty?
           assign_members(group_trigger, profile_id, to_assign_ids) unless to_assign_ids.empty?
         end
@@ -112,6 +110,16 @@ module ManageIQ::Providers
         end
       end
       data_id_map
+    end
+
+    private
+
+    def retrieve_hawkular_group_triggers(alert_ids)
+      alert_ids.map do |item|
+        trigger_id = ::ManageIQ::Providers::Hawkular::MiddlewareManager::
+          AlertManager.resolve_hawkular_trigger_id(:ems => @ems, :alert => item, :alerts_client => @alerts_client)
+        @alerts_client.get_single_trigger(trigger_id, true)
+      end
     end
   end
 end
