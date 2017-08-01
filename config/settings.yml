@@ -17,6 +17,8 @@
           - hawkular_deployment.ok
           - hawkular_deployment_remove.ok
           - hawkular_event
+    :jdr:
+      :generation_timeout: 3.minutes
 :ems_refresh:
   :hawkular:
     :refresh_interval: 15.minutes

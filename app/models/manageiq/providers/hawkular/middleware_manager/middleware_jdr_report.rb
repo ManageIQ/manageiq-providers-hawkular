@@ -1,3 +1,5 @@
+require 'timeout'
+
 module ManageIQ::Providers
   class Hawkular::MiddlewareManager::MiddlewareJdrReport < ApplicationRecord
     self.table_name = 'middleware_jdr_reports'
@@ -50,7 +52,20 @@ module ManageIQ::Providers
       end
 
       @connection = ext_management_system.connect.operations(true)
+      @finish_signal = Queue.new
       @connection.export_jdr(middleware_server.ems_ref, true, &callback)
+
+      Timeout.timeout(::Settings.ems.ems_hawkular.jdr.generation_timeout.to_i_with_method) { @finish_signal.deq }
+    rescue Timeout::Error
+      self.status = STATUS_ERROR
+      self.error_message = _('Reached generation timeout.')
+      save!
+    rescue => ex
+      self.status = STATUS_ERROR
+      self.error_message = ex.to_s
+      save!
+    ensure
+      @connection&.close_connection!
     end
 
     private
@@ -69,7 +84,8 @@ module ManageIQ::Providers
         :class_name  => self.class.name,
         :instance_id => id,
         :role        => 'ems_operations',
-        :method_name => 'generate_jdr_report'
+        :method_name => 'generate_jdr_report',
+        :msg_timeout => ::Settings.ems.ems_hawkular.jdr.generation_timeout.to_i_with_method + 30.seconds
       )
 
       $mw_log.info("#{log_prefix} JDR report [#{id}] for server [#{middleware_server.ems_ref}] enqueued with job #{job.id}.")
@@ -92,8 +108,7 @@ module ManageIQ::Providers
       end
 
       $mw_log.info("#{log_prefix} Generation of JDR report [#{id}] [#{binary_blob.name}] succeded.")
-    ensure
-      @connection.close_connection!
+      @finish_signal << STATUS_READY
     end
 
     def jdr_report_failed(error)
@@ -101,8 +116,8 @@ module ManageIQ::Providers
       self.status = STATUS_ERROR
       self.error_message = error
       save!
-    ensure
-      @connection.close_connection!
+
+      @finish_signal << STATUS_READY
     end
 
     def log_prefix
