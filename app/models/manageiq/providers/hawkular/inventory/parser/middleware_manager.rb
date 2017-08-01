@@ -323,8 +323,6 @@ module ManageIQ::Providers
         )
       end
 
-      private
-
       def associate_with_vm(server, feed)
         # Add the association to vm instance if there is any
         machine_id = collector.machine_id(feed)
@@ -332,6 +330,8 @@ module ManageIQ::Providers
                         find_host_by_bios_uuid(alternate_machine_id(machine_id))
         set_lives_on(server, host_instance) if host_instance
       end
+
+      private
 
       def parse_base_item(item, inventory_object)
         inventory_object.ems_ref = item.path

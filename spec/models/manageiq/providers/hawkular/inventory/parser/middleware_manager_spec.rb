@@ -298,6 +298,21 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
     end
   end
 
+  describe 'associate_with_vm' do
+    it 'should be able to associate with the existing vm' do
+      allow(collector_double).to receive(:machine_id).and_return(test_machine_id)
+      vm = FactoryGirl.create(:vm_redhat, :uid_ems => test_machine_id)
+      parser.associate_with_vm(server, server.feed)
+      expect(server.lives_on).to eq(vm)
+    end
+
+    it 'should do nothing if the vm is not there' do
+      allow(collector_double).to receive(:machine_id).and_return(nil)
+      parser.associate_with_vm(server, server.feed)
+      expect(server.lives_on).to be_nil
+    end
+  end
+
   describe 'handle_no_machine_id' do
     it 'should_find_nil_for_nil' do
       expect(parser.find_host_by_bios_uuid(nil)).to be_nil

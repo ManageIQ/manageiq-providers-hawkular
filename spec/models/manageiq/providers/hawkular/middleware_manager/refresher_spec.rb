@@ -95,7 +95,7 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::Refresher do
       :name     => 'server-one',
       :nativeid => 'Local~/host=master/server=server-one',
       :product  => 'WildFly Full',
-      :hostname => 'ea174c22c065',
+      :hostname => test_machine_id,
     )
     expect(server.properties).not_to be_nil
   end
