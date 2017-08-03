@@ -65,7 +65,7 @@ module ManageIQ::Providers
       self.error_message = ex.to_s
       save!
     ensure
-      @connection&.close_connection!
+      @connection.close_connection! if @connection
     end
 
     private
@@ -93,7 +93,7 @@ module ManageIQ::Providers
 
     def jdr_report_succeded(data)
       reload
-      self.class.transaction(:isolation => :serializable) do
+      self.class.transaction do
         if binary_blob
           $mw_log.debug("#{log_prefix} JDR report [#{id}] [#{binary_blob.name}] will be overwritten.")
           binary_blob.name = data['fileName']
