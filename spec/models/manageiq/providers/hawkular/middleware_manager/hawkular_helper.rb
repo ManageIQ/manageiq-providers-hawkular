@@ -4,6 +4,11 @@ def the_feed_id
   '1aae80bd1d13'.freeze
 end
 
+def test_machine_id
+  # change me if needed during re-recording the vcrs
+  'ee0137a08d38'.freeze
+end
+
 def test_start_time
   Time.new(2016, 10, 19, 8, 0, 0, "+00:00").freeze
 end

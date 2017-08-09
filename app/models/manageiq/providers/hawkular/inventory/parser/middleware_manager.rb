@@ -44,10 +44,7 @@ module ManageIQ::Providers
                 set_lives_on(server, container) if container
               end
             else
-              machine_id = collector.machine_id(eap.feed)
-              host_instance = find_host_by_bios_uuid(machine_id) ||
-                              find_host_by_bios_uuid(alternate_machine_id(machine_id))
-              set_lives_on(server, host_instance) if host_instance
+              associate_with_vm(server, eap.feed)
             end
           end
         end
@@ -94,6 +91,8 @@ module ManageIQ::Providers
 
           server = persister.middleware_servers.find_or_build(domain_server.path)
           parse_middleware_server(domain_server, server, true, server_name)
+
+          associate_with_vm(server, feed)
 
           # Add the association to server group. The information about what server is in which server group is under
           # the server-config resource's configuration
@@ -322,6 +321,14 @@ module ManageIQ::Providers
           :hostname  => hostname,
           :product   => product
         )
+      end
+
+      def associate_with_vm(server, feed)
+        # Add the association to vm instance if there is any
+        machine_id = collector.machine_id(feed)
+        host_instance = find_host_by_bios_uuid(machine_id) ||
+                        find_host_by_bios_uuid(alternate_machine_id(machine_id))
+        set_lives_on(server, host_instance) if host_instance
       end
 
       private
