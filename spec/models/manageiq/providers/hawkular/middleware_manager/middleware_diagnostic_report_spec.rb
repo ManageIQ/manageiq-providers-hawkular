@@ -1,6 +1,6 @@
 require_relative 'hawkular_helper'
 
-describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareJdrReport do
+describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareDiagnosticReport do
   subject(:report) { FactoryGirl.build(:hawkular_jdr_report) }
   before(:context) do
     MiqServer.seed
@@ -14,7 +14,7 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareJdrReport d
     report.save!
 
     queue_item = MiqQueue.find_by(
-      :method_name => 'generate_jdr_report',
+      :method_name => 'generate_diagnostic_report',
       :class_name  => described_class.name,
       :instance_id => report.id
     )
@@ -54,7 +54,7 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareJdrReport d
     expect(report.ran?).to be_falsey
   end
 
-  describe '#generate_jdr_report' do
+  describe '#generate_diagnostic_report' do
     let(:ems) do
       ems = ems_hawkular_fixture
       allow(ems).to receive(:connect).and_return(hawkular_client_stub)
@@ -90,7 +90,7 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareJdrReport d
         report.instance_variable_get('@finish_signal') << 1
       end
 
-      report.generate_jdr_report
+      report.generate_diagnostic_report
       expect(report.status).to be == described_class::STATUS_RUNNING
     end
 
@@ -99,7 +99,7 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareJdrReport d
         blk.perform(:success, 'fileName' => 'jdr_report', :attachments => 'jdr_report_data')
       end
 
-      report.generate_jdr_report
+      report.generate_diagnostic_report
       expect(report.status).to be == described_class::STATUS_READY
       expect(report.binary_blob).to_not be_blank
       expect(report.binary_blob.binary).to be == 'jdr_report_data'
@@ -110,7 +110,7 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareJdrReport d
         blk.perform(:failure, 'jdr_report_error')
       end
 
-      report.generate_jdr_report
+      report.generate_diagnostic_report
       expect(report.status).to be == described_class::STATUS_ERROR
       expect(report.error_message).to be == 'jdr_report_error'
     end
@@ -118,7 +118,7 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareJdrReport d
     it 'should assign error status and save message if jdr generation timeouts' do
       ::Settings.ems.ems_hawkular.jdr.generation_timeout = '1.second'
 
-      report.generate_jdr_report
+      report.generate_diagnostic_report
       expect(report.status).to be == described_class::STATUS_ERROR
       expect(report.error_message).to be == _('Reached generation timeout.')
     end

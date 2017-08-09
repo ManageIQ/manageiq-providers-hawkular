@@ -1,8 +1,8 @@
 require 'timeout'
 
 module ManageIQ::Providers
-  class Hawkular::MiddlewareManager::MiddlewareJdrReport < ApplicationRecord
-    self.table_name = 'middleware_jdr_reports'
+  class Hawkular::MiddlewareManager::MiddlewareDiagnosticReport < ApplicationRecord
+    self.table_name = 'middleware_diagnostic_reports'
 
     STATUS_QUEUED = 'Queued'.freeze
     STATUS_RUNNING = 'Running'.freeze
@@ -40,7 +40,7 @@ module ManageIQ::Providers
       ready? || erred?
     end
 
-    def generate_jdr_report
+    def generate_diagnostic_report
       $mw_log.debug("#{log_prefix} Sending to Hawkular a request to generate JDR report [#{id}].")
 
       self.status = STATUS_RUNNING
@@ -84,7 +84,7 @@ module ManageIQ::Providers
         :class_name  => self.class.name,
         :instance_id => id,
         :role        => 'ems_operations',
-        :method_name => 'generate_jdr_report',
+        :method_name => 'generate_diagnostic_report',
         :msg_timeout => ::Settings.ems.ems_hawkular.jdr.generation_timeout.to_i_with_method + 30.seconds
       )
 
@@ -121,7 +121,7 @@ module ManageIQ::Providers
     end
 
     def log_prefix
-      @_log_prefix ||= "EMS_#{ems_id}(Hawkular::MWM::MwJdrReport)"
+      @_log_prefix ||= "EMS_#{ems_id}(Hawkular::MWM::MwDiagnosticReport)"
     end
   end
 end
