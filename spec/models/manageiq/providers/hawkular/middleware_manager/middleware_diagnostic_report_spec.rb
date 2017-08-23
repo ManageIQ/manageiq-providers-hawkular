@@ -23,6 +23,21 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareDiagnosticR
     expect(report.queued_at).to_not be_blank
   end
 
+  it 'enqueues event creation for new reports with queued status' do
+    query_conds = {
+      :method_name => 'add',
+      :class_name  => 'EmsEvent',
+      :queue_name  => 'ems',
+      :role        => 'event'
+    }
+
+    events_queued_before = MiqQueue.where(query_conds).count
+    report.save!
+    events_queued_after = MiqQueue.where(query_conds).count
+
+    expect(events_queued_after).to be > events_queued_before
+  end
+
   it 'validates presence of requesting user field' do
     report.requesting_user = ''
     expect(report.valid?).to be_falsey

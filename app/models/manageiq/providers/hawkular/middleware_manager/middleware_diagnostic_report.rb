@@ -88,6 +88,18 @@ module ManageIQ::Providers
         :msg_timeout => ::Settings.ems.ems_hawkular.jdr.generation_timeout.to_i_with_method + 30.seconds
       )
 
+      EmsEvent.add_queue(
+        'add', ems_id,
+        :ems_id          => ems_id,
+        :source          => 'EVM',
+        :timestamp       => Time.zone.now,
+        :event_type      => 'hawkular_event',
+        :message         => _('Generation of JDR report was requested by a user.'),
+        :middleware_ref  => middleware_server.ems_ref,
+        :middleware_type => 'MiddlewareServer',
+        :username        => requesting_user
+      )
+
       $mw_log.info("#{log_prefix} JDR report [#{id}] for server [#{middleware_server.ems_ref}] enqueued with job #{job.id}.")
     end
 
@@ -108,7 +120,9 @@ module ManageIQ::Providers
       end
 
       $mw_log.info("#{log_prefix} Generation of JDR report [#{id}] [#{binary_blob.name}] succeded.")
-      @finish_signal << STATUS_READY
+
+      # Unblock main thread at generate_diagnostic_report method
+      @finish_signal << :success
     end
 
     def jdr_report_failed(error)
@@ -117,7 +131,8 @@ module ManageIQ::Providers
       self.error_message = error
       save!
 
-      @finish_signal << STATUS_READY
+      # Unblock main thread at generate_diagnostic_report method
+      @finish_signal << :failure
     end
 
     def log_prefix
