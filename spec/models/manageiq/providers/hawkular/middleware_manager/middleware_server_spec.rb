@@ -135,6 +135,13 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareServer do
                      end
   end
 
+  it '#enqueue_diagnostic_report' do
+    report = eap.enqueue_diagnostic_report(:requesting_user => 'my_user')
+    expect(report.persisted?).to be_truthy
+    expect(report.middleware_server).to be == eap
+    expect(report.queued?).to be_truthy
+  end
+
   describe '#feed' do
     it 'unescape escaped characters' do
       subject.feed = 'master.Unnamed%20Domain'
