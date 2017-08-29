@@ -279,6 +279,20 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
     end
   end
 
+  describe '#dashed_machine_id' do
+    it 'should reject id that is not 32 charasters length' do
+      expect(parser.dashed_machine_id('abc123')).to be_nil
+    end
+
+    it 'should reject id with non hexadecimal characters' do
+      expect(parser.dashed_machine_id('abcdef1234567890abcdef123456789P')).to be_nil
+    end
+
+    it 'should add dashes at standard locations' do
+      expect(parser.dashed_machine_id('abcdef1234567890abcdef1234567890')).to eq('abcdef12-3456-7890-abcd-ef1234567890')
+    end
+  end
+
   describe 'swap_part' do
     it 'should swap and reverse every two bytes of a machine ID part' do
       # the /etc/machine-id is usually in downcase, and the dmidecode BIOS UUID is usually upcase
@@ -302,6 +316,13 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
     it 'should be able to associate with the existing vm' do
       allow(collector_double).to receive(:machine_id).and_return(test_machine_id)
       vm = FactoryGirl.create(:vm_redhat, :uid_ems => test_machine_id)
+      parser.associate_with_vm(server, server.feed)
+      expect(server.lives_on).to eq(vm)
+    end
+
+    it 'should associate to vm even if agent reports machine id withouth dashes, but vm guid is reported with dashes' do
+      allow(collector_double).to receive(:machine_id).and_return('abcdef1234567890abcdef1234567890')
+      vm = FactoryGirl.create(:vm_redhat, :uid_ems => 'abcdef12-3456-7890-abcd-ef1234567890')
       parser.associate_with_vm(server, server.feed)
       expect(server.lives_on).to eq(vm)
     end
