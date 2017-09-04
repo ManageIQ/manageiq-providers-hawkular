@@ -29,7 +29,85 @@ running for development.
 
 Any Linux/OS X System is compatible, as far as we are concerned.
 
-For system configuration, please refer to here: http://manageiq.org/docs/guides/developer_setup
+### Installing Dependencies
+
+#### Fedora
+
+First, install all system dependencies:
+
+```bash
+sudo dnf -y git-all memcached postgresql-devel postgresql-server postgresql-contrib bzip2 libffi-devel readline-devel sqlite-devel nodejs gcc-c++ libcurl-devel npm openssl-devel cmake openscap
+```
+
+Then, install npm packages required for the UI:
+
+```bash
+sudo npm install -g bower yarn webpack gulp
+```
+
+Start Memcached:
+
+```bash
+sudo systemctl enable memcached
+sudo systemctl start memcached
+```
+
+Then, configure, install and run PostgreSQL:
+
+```bash
+sudo postgresql-setup --initdb --unit postgresql
+sudo grep -q '^local\s' /var/lib/pgsql/data/pg_hba.conf || echo "local all all trust" | sudo tee -a /var/lib/pgsql/data/pg_hba.conf
+sudo sed -i.bak 's/\(^local\s*\w*\s*\w*\s*\)\(peer$\)/\1trust/' /var/lib/pgsql/data/pg_hba.conf
+sudo systemctl enable postgresql
+sudo systemctl start postgresql
+sudo su postgres -c "psql -c \"CREATE ROLE root SUPERUSER LOGIN PASSWORD 'smartvm'\""
+```
+
+#### OS X
+
+TODO.
+
+#### Installing a Ruby Runtime
+
+There are many options to have different ruby versions running at the same
+time, and while the Ruby versions in the repositories are usually up to date
+enough, there's often a need to test or fix stuff in different ruby versions,
+so the recommended way is to use a ruby version manager, such as
+[RVM](https://rvm.io/), [Rbenv](https://github.com/rbenv/rbenv) or
+[Chruby](https://github.com/postmodern/chruby). In this guide we'll be covering
+Rbenv.
+
+For OS X, `rbenv` and `ruby-build` are available on homebrew, and can be installed like this:
+
+```bash
+brew upgrade rbenv ruby-build
+echo 'eval "$(rbenv init -)"' >> ~/.bashrc
+eval "$(rbenv init -)"
+```
+
+For Linux, it will have to be installed via default git checkout:
+
+```bash
+git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+cd ~/.rbenv && src/configure && make -C src
+echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc
+mkdir -p "$(rbenv root)"/plugins
+git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build
+echo 'eval "$(rbenv init -)"' >> ~/.bashrc
+eval "$(rbenv init -)"
+```
+
+After this, you can install ruby with:
+
+```bash
+rbenv install 2.4.1
+```
+
+And after that, install bundler:
+
+```bash
+gem install bundler --no-ri --no-rdoc
+```
 
 ### Cloning and configuring the application
 
