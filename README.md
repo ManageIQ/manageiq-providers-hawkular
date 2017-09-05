@@ -219,7 +219,7 @@ bundle exec rake evm:start
 
 Then, we can visit `http://localhost:3000` and sign in. If everything is working fine, you should see this:
 
-![](https://i.imgur.com/mtW7UHK.png)
+![](screenshots/login.png)
 
 Sign in with the default credentials (`admin`/`smartvm`), and you should be good to go!
 
@@ -288,7 +288,7 @@ newgrp docker # to update your groups on the session
 
 Then, by running `hawkinit`, you'll see something like this:
 
-![](https://i.imgur.com/cYZ3iLb.png)
+![](screenshots/hawkinit.png)
 
 It will ask then some questions:
 
@@ -320,11 +320,11 @@ So, with ManageIQ running, go to `http://localhost:3000`, sign in, and go on
 the sidebar menu to `Middleware -> Providers`. At that screen we're going to
 add a new provider, like this:
 
-![](https://i.imgur.com/OOVL75A.png)
+![](screenshots/add-new-link.png)
 
 And on the next screen, we're going to set it up like this:
 
-![](https://i.imgur.com/sGBJM5f.png)
+![](screenshots/add-new.png)
 
 * Name: Doesn't matter
 * Type: Hawkular
@@ -335,15 +335,12 @@ And on the next screen, we're going to set it up like this:
 * Password: password
 
 Press the `Validate` button, and then the `Add` button in case everything goes
-well with the validation, and you'll be able to see this:
+well with the validation, and you'll have a provider registered. It might still
+take a while to fetch everything on the inventory from Hawkular. If that
+doesn't happen automatically, you might have to do the refreshing manually, by
+going on the provider page and clicking this:
 
-![](https://i.imgur.com/sGBJM5f.png)
-
-It might take a while to fetch everything on the inventory from Hawkular. If
-that doesn't happen automatically, you might have to do the refreshing
-manually, by going on the provider page and clicking this:
-
-![](https://i.imgur.com/iDRFHcY.png)
+![](screenshots/refresh.png)
 
 ### Further Reading and References
 
