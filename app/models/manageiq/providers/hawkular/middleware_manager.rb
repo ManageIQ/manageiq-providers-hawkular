@@ -440,11 +440,11 @@ module ManageIQ::Providers
       operation = args[0][:operation]
       alert = args[0][:alert]
       miq_alert = {
-        :id          => alert[:id],
-        :enabled     => alert[:enabled],
-        :description => alert[:description],
-        :conditions  => alert[:expression],
-        :based_on    => alert[:db]
+        :id          => alert.id,
+        :enabled     => alert.enabled,
+        :description => alert.description,
+        :conditions  => alert.expression,
+        :based_on    => alert.db
       }
       MiddlewareManager.find_each { |m| m.alert_manager.process_alert(operation, miq_alert) }
     end
