@@ -1,6 +1,14 @@
 namespace :spec do
   desc "Setup environment specs"
   task :setup => ["app:test:vmdb:setup"]
+
+  desc 'Run most specs using a real MW Manager and not using recorded cassettes'
+  task :live do
+    Rake::Task['spec:hawkular:setup'].invoke
+    ENV['VCR_RECORD_ALL'] = '1'
+    Rake::Task['spec'].invoke
+    Rake::Task['spec:hawkular:down'].invoke
+  end
 end
 
 desc "Run all specs"

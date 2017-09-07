@@ -100,8 +100,10 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::EventCatcher::Stream 
       ems_hawkular.middleware_deployments.create(:feed => 'f1', :ems_ref => '/t;hawkular/f;f1/r;resource1')
 
       # if generating a cassette the polling window is the previous 1 minute
+      # TODO: Make it predictable with live tests.
       VCR.use_cassette(described_class.name.underscore.to_s,
-                       :decode_compressed_response => true) do # , :record => :new_episodes) do
+                       :decode_compressed_response => true,
+                       :record                     => :none) do
         result = []
         subject.start
         subject.each_batch do |events|

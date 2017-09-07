@@ -1,7 +1,14 @@
 # Feed id to be used for all spec
 def the_feed_id
-  # '71daaa4b-da76-4373-8753-68279f33a884'.freeze
-  '1aae80bd1d13'.freeze
+  'wf-standalone'.freeze
+end
+
+def the_domain_feed_id
+  'wf-domain'.freeze
+end
+
+def test_mw_manager_feed_id
+  'mw-manager'.freeze
 end
 
 def test_machine_id

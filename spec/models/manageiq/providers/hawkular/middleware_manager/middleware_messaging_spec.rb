@@ -21,8 +21,8 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareMessaging d
     FactoryGirl.create(:hawkular_middleware_server,
                        :id                    => 1,
                        :name                  => 'Local',
-                       :feed                  => the_feed_id,
-                       :ems_ref               => '/t;hawkular/f;#{the_feed_id}/r;Local~~',
+                       :feed                  => test_mw_manager_feed_id,
+                       :ems_ref               => "/t;hawkular/f;#{test_mw_manager_feed_id}/r;Local~~",
                        :nativeid              => 'Local~~',
                        :ext_management_system => ems_hawkular)
   end
@@ -33,7 +33,7 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareMessaging d
         if ms_model == :queue
           FactoryGirl.create(:hawkular_middleware_messaging_initialized_queue,
                              :ems_ref               => '/t;hawkular'\
-                                                 "/f;#{the_feed_id}/r;Local~~"\
+                                                 "/f;#{test_mw_manager_feed_id}/r;Local~~"\
                                                  '/r;Local~%2Fsubsystem%3Dmessaging-activemq%2Fserver%3Ddefault/' \
                                                  'r;Local~%2Fsubsystem%3Dmessaging-activemq%2Fserver%3Ddefault%2Fjms'\
                                                  '-queue%3DDLQ',
@@ -43,7 +43,7 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareMessaging d
         else
           FactoryGirl.create(:hawkular_middleware_messaging_initialized_topic,
                              :ems_ref               => '/t;hawkular'\
-                                                 "/f;#{the_feed_id}/r;Local~~"\
+                                                 "/f;#{test_mw_manager_feed_id}/r;Local~~"\
                                                  '/r;Local~%2Fsubsystem%3Dmessaging-activemq%2Fserver%3Ddefault'\
                                                  '/r;Local~%2Fsubsystem%3Dmessaging-activemq%2Fserver%3Ddefault%2F'\
                                                  'jms-topic%3DHawkularAlertData',

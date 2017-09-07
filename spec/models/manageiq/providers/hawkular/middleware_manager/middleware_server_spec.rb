@@ -24,8 +24,8 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareServer do
                        :name                  => 'Local',
                        :feed                  => the_feed_id,
                        :ems_ref               => '/t;hawkular'\
-                       "/f;#{the_feed_id}/r;Local~~",
-                       :nativeid              => 'Local~~',
+                       "/f;#{the_feed_id}/r;Local%20DMR~~",
+                       :nativeid              => 'Local%20DMR~~',
                        :ext_management_system => ems_hawkular)
   end
 

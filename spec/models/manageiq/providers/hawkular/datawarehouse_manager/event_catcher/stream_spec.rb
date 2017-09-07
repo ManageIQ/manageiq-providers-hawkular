@@ -13,10 +13,12 @@ describe ManageIQ::Providers::Hawkular::DatawarehouseManager::EventCatcher::Stre
 
   context "#fetch" do
     it "yields valid events" do
+      # TODO: Make it predictable with live tests to remove :record => :none.
+      #    Although, it's possible that datawarehouse will be retired.
       VCR.use_cassette(
         described_class.name.underscore.to_s,
         :decode_compressed_response => true,
-        # :record                   => :new_episodes,
+        :record                     => :none
       ) do
         result = subject.instance_eval('fetch')
         expect(result.count).to be == 2
