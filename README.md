@@ -74,34 +74,10 @@ time, and while the Ruby versions in the repositories are usually up to date
 enough, there's often a need to test or fix stuff in different ruby versions,
 so the recommended way is to use a ruby version manager, such as
 [RVM](https://rvm.io/), [Rbenv](https://github.com/rbenv/rbenv) or
-[Chruby](https://github.com/postmodern/chruby). In this guide we'll be covering
-Rbenv.
+[Chruby](https://github.com/postmodern/chruby).  Please refer to their
+documentation on how to install.
 
-For OS X, `rbenv` and `ruby-build` are available on homebrew, and can be installed like this:
-
-```bash
-brew upgrade rbenv ruby-build
-echo 'eval "$(rbenv init -)"' >> ~/.bashrc
-eval "$(rbenv init -)"
-```
-
-For Linux, it will have to be installed via default git checkout:
-
-```bash
-git clone https://github.com/rbenv/rbenv.git ~/.rbenv
-cd ~/.rbenv && src/configure && make -C src
-echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> ~/.bashrc
-mkdir -p "$(rbenv root)"/plugins
-git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build
-echo 'eval "$(rbenv init -)"' >> ~/.bashrc
-eval "$(rbenv init -)"
-```
-
-After this, you can install ruby with:
-
-```bash
-rbenv install 2.4.1
-```
+After this, you need to install ruby 2.4+, preferably 2.4.1:
 
 And after that, install bundler:
 
