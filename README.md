@@ -216,6 +216,48 @@ cd $OLD_PWD
 echo "DONE."
 ```
 
+## Installing Docker
+
+First, remove any currently installed version of Docker:
+
+```bash
+sudo dnf remove docker docker-common docker-selinux docker-engine-selinux docker-engine
+```
+
+Then, install Docker's Community Edition repository to if not installed, you
+might need to install `dnf-plugins-core` to add the repos, and then update the cache:
+
+```bash
+sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+sudo dnf makecache fast
+```
+
+And then, install Docker:
+
+```bash
+sudo dnf install docker-ce
+```
+
+You'll also need to add yourself to the `docker` group:
+
+```bash
+sudo usermod -a -G docker `whoami`
+newgrp docker # to update your groups on the session
+```
+
+After that, enable and start Docker:
+
+```bash
+sudo systemctl enable docker
+sudo systemctl start docker
+```
+
+And finally, to test if everything is working ok:
+
+```bash
+docker run alpine /bin/echo OK
+```
+
 ## Installing Hawkular
 
 There are two ways of installing Hawkular: manually or via Docker. There are
@@ -232,14 +274,6 @@ that by getting it through npm, like this:
 
 ```bash
 sudo npm install @hawkular/hawkinit -g
-```
-
-You'll also need to have Docker installed, and your group should be on the
-`docker` group:
-
-```bash
-sudo usermod -a -G docker `whoami`
-newgrp docker # to update your groups on the session
 ```
 
 Then, run `hawkinit`.
