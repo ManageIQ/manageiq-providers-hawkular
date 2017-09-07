@@ -135,29 +135,14 @@ git clone git@github.com:<your-username>/hawkular-client-ruby
 And then we add the upstream remotes to fetch changes on the main codebase:
 
 ```bash
-cd ~/ManageIQ/manageiq
-git remote add upstream git@github.com:ManageIQ/manageiq
-cd ..
+cd ~/ManageIQ
 
-cd manageiq-ui-classic
-git remote add upstream git@github.com:ManageIQ/manageiq-ui-classic
-cd ..
-
-cd manageiq-schema
-git remote add upstream git@github.com:ManageIQ/manageiq-schema
-cd ..
-
-cd manageiq-api
-git remote add upstream git@github.com:ManageIQ/manageiq-api
-cd ..
-
-cd manageiq-providers-hawkular
-git remote add upstream git@github.com:ManageIQ/manageiq-providers-hawkular
-cd ..
-
-cd hawkular-client-ruby
-git remote add upstream git@github.com:hawkular/hawkular-client-ruby
-cd ..
+git -C ./manageiq remote add upstream git@github.com:ManageIQ/manageiq
+git -C ./manageiq-ui-classic remote add upstream git@github.com:ManageIQ/manageiq-ui-classic
+git -C ./manageiq-schema remote add upstream git@github.com:ManageIQ/manageiq-schema
+git -C ./manageiq-api remote add upstream git@github.com:ManageIQ/manageiq-api
+git -C ./manageiq-providers-hawkular remote add upstream git@github.com:ManageIQ/manageiq-providers-hawkular
+git -C ./hawkular-client-ruby remote add upstream git@github.com:hawkular/hawkular-client-ruby
 ```
 
 Now we need to make ManageIQ use our vendored repositories instead of the local
@@ -188,32 +173,27 @@ The next step is to configure each repository:
 ```bash
 cd ~/ManageIQ/manageiq
 ./bin/setup
-cd ..
 
-cd manageiq-ui-classic
+cd ../manageiq-ui-classic
 ./bin/setup
-cd ..
 
-cd manageiq-schema
+cd ../manageiq-schema
 ./bin/setup
-cd ..
 
-cd manageiq-api
+cd ../manageiq-api
 ./bin/setup
-cd ..
 
-cd manageiq-providers-hawkular
+cd ../manageiq-providers-hawkular
 ./bin/setup
-cd ..
 
-cd hawkular-client-ruby
+cd ../hawkular-client-ruby
 bundle install
-cd ..
 ```
 
 This should be enough. To run the application, we can run this, which will run the application on background on port 3000:
 
 ```bash
+cd ~/ManageIQ/manageiq
 bundle exec rake evm:start
 ```
 
@@ -230,7 +210,7 @@ To update the repositories, you need to go on each one and run `bin/update`. Thi
 ```bash
 #!/bin/bash
 
-MIQ_DIR="$HOME/manageiq"
+MIQ_DIR="$HOME/ManageIQ"
 OLD_PWD="$(pwd)"
 
 cd $MIQ_DIR
@@ -251,7 +231,7 @@ done
 
 echo "Updating core..."
 
-cd $MIQ_DIR/core
+cd $MIQ_DIR/manageiq
 
 ./bin/update
 
@@ -270,12 +250,12 @@ and configured.
 
 #### Via Docker (recommended)
 
-First, we need to install [hawkinit](https://github.com/Jiri-Kremser/hawkinit),
+First, we need to install [hawkinit](https://github.com/hawkular/hawkinit),
 a CLI tool that takes care of running a Hawkular cluster for you. You can do
 that by getting it through npm, like this:
 
 ```bash
-sudo npm install -g hawkinit
+sudo npm install @hawkular/hawkinit -g
 ```
 
 You'll also need to have Docker installed, and your group should be on the
@@ -286,23 +266,24 @@ sudo usermod -a -G docker `whoami`
 newgrp docker # to update your groups on the session
 ```
 
-Then, by running `hawkinit`, you'll see something like this:
-
-![](screenshots/hawkinit.png)
-
-It will ask then some questions:
-
-* What should it use for running the services? Docker-Compose? Openshift?
-* What version of Hawkular?
-* What version of Cassandra?
-* What WildFly version?
-* Standalone or Domain mode for Wildfly?
-* How many WildFly servers?
+Then, run `hawkinit`.
 
 For most options, the default is ok, and is the fastest way to have something
 running. One important thing is that when you run hawkinit again, it will not
 reuse the same images, but use new ones. If that's not the behaviour you want,
 you can find the generated `docker-compose.yml` on `/tmp`.
+
+We have preppared some basic scenarios that will get you started:
+- [Hawkular Services and one mutable agent](readme_data/hawkinit/mutable-agent.json)
+- [Hawkular Services and one immutable agent](readme_data/hawkinit/immutable-agent.json)
+
+You can run them like this:
+```bash
+hawkinit -a readme_data/hawkinit/mutable-agent.json
+```
+
+You can find more information
+on [hawkinit](https://github.com/hawkular/hawkinit).
 
 #### Manually
 
