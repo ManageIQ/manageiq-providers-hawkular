@@ -72,14 +72,16 @@ gem install bundler --no-ri --no-rdoc
 
 ## Cloning and configuring the application
 
-The first necessary step is to fork the following repositories:
+The first necessary step is to fork the following repositories by running this command:
 
-* [ManageIQ Core](https://github.com/ManageIQ/manageiq)
-* [ManageIQ UI Classic](https://github.com/ManageIQ/manageiq-ui-classic)
-* [ManageIQ Schema](https://github.com/ManageIQ/manageiq-schema)
-* [ManageIQ API](https://github.com/ManageIQ/manageiq-api)
-* [ManageIQ Hawkular Provider](https://github.com/ManageIQ/manageiq-providers-hawkular)
-* [Hawkular Ruby Client](https://github.com/hawkular/hawkular-client-ruby)
+```bash
+curl -u '<your_github_user>' https://api.github.com/repos/ManageIQ/manageiq/forks  
+https://api.github.com/repos/ManageIQ/manageiq-ui-classic/forks
+https://api.github.com/repos/ManageIQ/manageiq-schema/forks
+https://api.github.com/repos/ManageIQ/manageiq-api/forks
+https://api.github.com/repos/ManageIQ/manageiq-providers-hawkular/forks
+https://api.github.com/repos/hawkular/hawkular-client-ruby/forks -d ''
+```
 
 Then, we clone them:
 
