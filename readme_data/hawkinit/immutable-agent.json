@@ -1,0 +1,17 @@
+{
+  "cassandraCount": 1,
+  "cassandraVersion": "3.0.9",
+  "defaultCredentials": true,
+  "forcePullImages": false,
+  "hawkAgent": "javaAgent",
+  "hawkVersion": "latest",
+  "hawkflyWfEap": "WildFly",
+  "hawkinitVersion": "1.9.1",
+  "orchestrationFramework": "docker-compose",
+  "ssl": false,
+  "wfEap": "WildFly",
+  "wfStandaloneCount": 1,
+  "wfStandaloneVersion": "latest",
+  "wfType": "Standalone",
+  "wildflyImmutableAgent": false
+}
