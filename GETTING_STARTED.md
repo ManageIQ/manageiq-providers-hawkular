@@ -117,11 +117,10 @@ add some other development dependencies without messing with the main
 repository. Its contents are the following:
 
 ```ruby
-override_gem name, path: File.expand_path("../../manageiq", __dir__)
-override_gem name, path: File.expand_path("../../manageiq-ui-classic", __dir__)
-override_gem name, path: File.expand_path("../../manageiq-schema", __dir__)
-override_gem name, path: File.expand_path("../../manageiq-api", __dir__)
-override_gem name, path: File.expand_path("../../manageiq-providers-hawkular", __dir__)
+override_gem 'manageiq-ui-classic', path: File.expand_path("../../manageiq-ui-classic", __dir__)
+override_gem 'manageiq-schema', path: File.expand_path("../../manageiq-schema", __dir__)
+override_gem 'manageiq-api', path: File.expand_path("../../manageiq-api", __dir__)
+override_gem 'manageiq-providers-hawkular', path: File.expand_path("../../manageiq-providers-hawkular", __dir__)
 ```
 
 We also recommend some other dependencies that might come in hand for debugging:
