@@ -13,5 +13,5 @@
   "wfStandaloneCount": 1,
   "wfStandaloneVersion": "latest",
   "wfType": "Standalone",
-  "wildflyImmutableAgent": true
+  "wildflyImmutableAgent": false
 }
