@@ -75,11 +75,11 @@ gem install bundler --no-ri --no-rdoc
 The first necessary step is to fork the following repositories by running this command:
 
 ```bash
-curl -u '<your_github_user>' https://api.github.com/repos/ManageIQ/manageiq/forks  
-https://api.github.com/repos/ManageIQ/manageiq-ui-classic/forks
-https://api.github.com/repos/ManageIQ/manageiq-schema/forks
-https://api.github.com/repos/ManageIQ/manageiq-api/forks
-https://api.github.com/repos/ManageIQ/manageiq-providers-hawkular/forks
+curl -u '<your_github_user>' https://api.github.com/repos/ManageIQ/manageiq/forks \
+https://api.github.com/repos/ManageIQ/manageiq-ui-classic/forks \
+https://api.github.com/repos/ManageIQ/manageiq-schema/forks \
+https://api.github.com/repos/ManageIQ/manageiq-api/forks \
+https://api.github.com/repos/ManageIQ/manageiq-providers-hawkular/forks \
 https://api.github.com/repos/hawkular/hawkular-client-ruby/forks -d ''
 ```
 
