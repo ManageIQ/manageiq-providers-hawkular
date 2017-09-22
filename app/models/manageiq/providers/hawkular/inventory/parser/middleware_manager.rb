@@ -122,6 +122,23 @@ module ManageIQ::Providers
         alternate.join('-')
       end
 
+      # Add standard dashes to a machine GUID that doesn't have dashes.
+      #
+      # @param machine_id [String] the GUI to which dashes should be added. The string
+      #   is validated to be 32 characters long and to only contain valid hexadecimal
+      #   digits. If any validations fail, nil is returned.
+      # @return [String] the GUI with dashed added at standard locations.
+      def dashed_machine_id(machine_id)
+        return nil if machine_id.nil? || machine_id.length != 32 || machine_id[/\H/]
+        [
+          machine_id[0, 8],
+          machine_id[8, 4],
+          machine_id[12, 4],
+          machine_id[16, 4],
+          machine_id[20, 12]
+        ].join('-')
+      end
+
       def swap_part(part)
         # here, we receive parts of an UUID, split into an array with 2 chars each element, and reverse the invidual
         # elements, joining and reversing the final outcome
@@ -327,7 +344,8 @@ module ManageIQ::Providers
         # Add the association to vm instance if there is any
         machine_id = collector.machine_id(feed)
         host_instance = find_host_by_bios_uuid(machine_id) ||
-                        find_host_by_bios_uuid(alternate_machine_id(machine_id))
+                        find_host_by_bios_uuid(alternate_machine_id(machine_id)) ||
+                        find_host_by_bios_uuid(dashed_machine_id(machine_id))
         set_lives_on(server, host_instance) if host_instance
       end
 
