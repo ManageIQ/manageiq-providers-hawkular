@@ -16,6 +16,10 @@ ManageIQ plugin for the Hawkular provider.
 
 Read the [Getting Started Guide](GETTING_STARTED.md).
 
+## Troubleshooting
+
+Read the [Troubleshooting page](TROUBLESHOOTING.md).
+
 ## License
 
 The gem is available as open source under the terms of the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
