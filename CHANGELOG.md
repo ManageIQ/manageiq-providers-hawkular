@@ -4,12 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
+
+## Unreleased as of Sprint 69 ending 2017-09-18
+
+### Fixed
+- Fix mutable flag in hawkinit scripts [(#47)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/47)
+- Changing bracket syntax for method/attribute syntax in update_alerts [(#39)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/39)
+
 ## Unreleased as of Sprint 68 ending 2017-09-04
 
 ### Added
 - Reporting
   - Adding JDR report model class with logic to generate reports [(#30)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/30)
-
 
 ## Unreleased as of Sprint 67 ending 2017-08-21
 
