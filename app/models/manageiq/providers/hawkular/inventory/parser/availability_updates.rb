@@ -3,6 +3,7 @@ module ManageIQ::Providers
     def parse
       fetch_server_availabilities
       fetch_deployment_availabilities
+      fetch_domain_availabilities
     end
 
     private
@@ -18,6 +19,13 @@ module ManageIQ::Providers
       collector.deployment_updates.each do |item|
         deployment = persister.middleware_deployments.find_or_build(item.manager_ref[:ems_ref])
         deployment.status = item.options[:status]
+      end
+    end
+
+    def fetch_domain_availabilities
+      collector.domain_updates.each do |item|
+        domain = persister.middleware_domains.find_or_build(item.manager_ref[:ems_ref])
+        domain.properties = item.options
       end
     end
   end

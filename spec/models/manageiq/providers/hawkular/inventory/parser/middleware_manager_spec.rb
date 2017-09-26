@@ -260,6 +260,63 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
     end
   end
 
+  describe 'fetch_domain_availabilities' do
+    let(:stubbed_domain) { FactoryGirl.create(:hawkular_middleware_server,
+                       :name                  => 'Local',
+                       :feed                  => the_feed_id,
+                       :ems_ref               => '/t;Hawkular'\
+                                                 "/f;#{the_feed_id}/r;Local~~",
+                       :nativeid              => 'Local~~',
+                       :ext_management_system => ems_hawkular,
+                       :properties            => { 'Server Status' => 'Inventory Status' })
+    }
+
+    before do
+      domains_collection = [stubbed_domain]
+      domains_collection.define_singleton_method(
+        :model_class,
+        -> { ::ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareDomain }
+      )
+
+      allow(persister_double).to receive(:middleware_domains).and_return(domains_collection)
+      allow(parser).to receive(:fetch_availabilities_for)
+        .and_yield(stubbed_domain, stubbed_metric_data)
+    end
+
+    it 'uses fetch_availabilities_for to fetch domain availabilities' do
+      parser.fetch_domain_availabilities(%w(f1))
+      expect(parser).to have_received(:fetch_availabilities_for)
+        .with(%w(f1), [stubbed_domain], 'Server%20Availability~Server%20Availability')
+    end
+
+    it 'assigns enabled status to a domain with "up" metric' do
+      stubbed_metric_data.data.first['value'] = 'up'
+
+      parser.fetch_domain_availabilities(%w(f1))
+      expect(stubbed_domain.properties['Availability']).to eq('Enabled')
+    end
+
+    it 'assigns disabled status to a domain with "down" metric' do
+      stubbed_metric_data.data.first['value'] = 'down'
+
+      parser.fetch_domain_availabilities(%w(f1))
+      expect(stubbed_domain.properties['Availability']).to eq('Disabled')
+    end
+
+    it 'assigns unknown status to a domain whose metric is something else than "up" or "down"' do
+      parser.fetch_domain_availabilities(%w(f1))
+      expect(stubbed_domain.properties['Availability']).to eq('Unknown')
+    end
+
+    it 'assigns unknown status to a domain with a missing metric' do
+      allow(parser).to receive(:fetch_availabilities_for)
+        .and_yield(stubbed_domain, nil)
+
+      parser.fetch_domain_availabilities(%w(f1))
+      expect(stubbed_domain.properties['Availability']).to eq('Unknown')
+    end
+  end
+
   describe '#alternate_machine_id' do
     it 'should transform machine ID to dmidecode BIOS UUID' do
       # the /etc/machine-id is usually in downcase, and the dmidecode BIOS UUID is usually upcase

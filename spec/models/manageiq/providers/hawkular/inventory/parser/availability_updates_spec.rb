@@ -22,7 +22,6 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::AvailabilityUpdates d
 
       # Verify
       item = persister.middleware_servers.find('abc')
-      expect(item).to be
       expect(item.manager_uuid).to eq('abc')
       expect(item.properties).to eq(avail_data)
 
@@ -48,6 +47,32 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::AvailabilityUpdates d
       expect(item.status).to eq('ready')
 
       expect(persister.middleware_servers.size).to be_zero
+    end
+
+    it "must create an item in persister with new status data for each domain reported by collector" do
+      # Setup
+      avail_data = {
+        'Host State'    => 'up',
+        'Server State'  => 'running',
+        'Suspend State' => 'running'
+      }
+
+      target << ManagerRefresh::Target.new(
+        :manager     => ems_hawkular,
+        :association => :middleware_domains,
+        :manager_ref => { :ems_ref => 'dom' },
+        :options     => avail_data
+      )
+
+      # Try
+      parser.parse
+
+      # Verify
+      item = persister.middleware_domains.find('dom')
+      expect(item.manager_uuid).to eq('dom')
+      expect(item.properties).to eq(avail_data)
+
+      expect(persister.middleware_domains.size).to be_zero
     end
 
     it "must create one persister item if two servers in collector have same ems_ref" do

@@ -178,6 +178,7 @@ module ManageIQ::Providers
         feeds_of_interest = persister.middleware_servers.to_a.map(&:feed).uniq
         fetch_server_availabilities(feeds_of_interest)
         fetch_deployment_availabilities(feeds_of_interest)
+        fetch_domain_availabilities(feeds_of_interest)
       end
 
       def fetch_deployment_availabilities(feeds)
@@ -194,6 +195,14 @@ module ManageIQ::Providers
 
           props['Availability'], props['Calculated Server State'] =
             process_server_availability(props['Server State'], availability.try(:[], 'data').try(:first))
+        end
+      end
+
+      def fetch_domain_availabilities(feeds)
+        collection = persister.middleware_domains
+        fetch_availabilities_for(feeds, collection, collection.model_class::AVAIL_TYPE_ID) do |domain, availability|
+          domain.properties['Availability'] =
+            process_deployment_availability(availability.try(:[], 'data').try(:first))
         end
       end
 
