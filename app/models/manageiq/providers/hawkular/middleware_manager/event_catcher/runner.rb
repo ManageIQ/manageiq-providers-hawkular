@@ -42,7 +42,7 @@ class ManageIQ::Providers::Hawkular::MiddlewareManager::EventCatcher::Runner <
       event_monitor_running
 
       # Separate alerts from avail updates
-      avail_updates, events = events.partition { |e| !e.kind_of?(::Hawkular::Alerts::Alert) }
+      avail_updates, events = events.partition { |e| !e.kind_of?(::Hawkular::Alerts::Event) }
 
       # Filter and queue events for processing
       new_events = events.select { |e| whitelist?(e) }

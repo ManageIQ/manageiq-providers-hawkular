@@ -260,7 +260,7 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
     end
   end
 
-  describe 'alternate_machine_id' do
+  describe '#alternate_machine_id' do
     it 'should transform machine ID to dmidecode BIOS UUID' do
       # the /etc/machine-id is usually in downcase, and the dmidecode BIOS UUID is usually upcase
       # the alternate_machine_id should *just* swap digits, it should not handle upcase/downcase.
@@ -276,6 +276,14 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
       machine_id = '33d1682fbca44b4cb19ecb47d344746c'
       expected = '2f68d133-a4bc-4c4b-b19e-cb47d344746c'
       expect(parser.alternate_machine_id(machine_id)).to eq(expected)
+    end
+
+    it 'should reject id that is not 32 charasters length' do
+      expect(parser.alternate_machine_id('abc123')).to be_nil
+    end
+
+    it 'should reject id with non hexadecimal characters' do
+      expect(parser.alternate_machine_id('abcdef1234567890abcdef123456789P')).to be_nil
     end
   end
 

@@ -105,7 +105,6 @@ module ManageIQ::Providers
       end
 
       def alternate_machine_id(machine_id)
-        return if machine_id.nil?
         # See the BZ #1294461 [1] for a more complete background.
         # Here, we'll try to adjust the machine ID to the format from that bug. We expect to get a string like
         # this: 2f68d133a4bc4c4bb19ecb47d344746c . For such string, we should return
@@ -113,6 +112,7 @@ module ManageIQ::Providers
         # providers store it in downcase, so, we let the upcase/downcase logic to other methods with more
         # business knowledge.
         # 1 - https://bugzilla.redhat.com/show_bug.cgi?id=1294461
+        return nil if machine_id.nil? || machine_id.length != 32 || machine_id[/\H/]
         alternate = []
         alternate << swap_part(machine_id[0, 8])
         alternate << swap_part(machine_id[8, 4])
