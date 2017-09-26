@@ -34,7 +34,24 @@ module ManageIQ::Providers
       end
     end
 
+    def self.save_domains(ems, collection)
+      byebug
+      ::ActiveRecord::Base.transaction do
+        collection.to_a.each do |item|
+          domain = ems.middleware_domains.find_by(:ems_ref => item.manager_uuid)
+          next unless domain
+
+          $mw_log.debug("EMS_#{ems.id}(Persister::AvailabilityUpdates): " \
+                        "Updating status #{domain.status} -> #{domain.status} for domain #{domain.ems_ref}")
+
+          domain.status = item.status
+          domain.save!
+        end
+      end
+    end
+
     has_middleware_manager_deployments(:custom_save_block => method(:save_deployments))
     has_middleware_manager_servers(:custom_save_block => method(:save_servers))
+    has_middleware_manager_domains(:custom_save_block => method(:save_domains))
   end
 end
