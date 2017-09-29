@@ -11,7 +11,7 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::AlertProfileManager d
 
   let(:server) do
     FactoryGirl.create(:hawkular_middleware_server, :name => 'Serv', :ems_ref => 'c00fee',
-                       :feed => 'feed', :nativeid => 'nativeid')
+                       :feed => 'my feed', :nativeid => 'nativeid')
   end
   let(:server2) do
     FactoryGirl.create(:hawkular_middleware_server, :name => 'Serv2', :ems_ref => 'c22fee',
@@ -29,8 +29,8 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::AlertProfileManager d
 
   let(:expected_map_for_group_trigger) do
     {
-      'foo' => 'hm_some_prefix_MI~R~[feed/nativeid]~MT~foo',
-      'bar' => 'hm_some_prefix_MI~R~[feed/nativeid]~MT~bar',
+      'foo' => 'hm_some_prefix_MI~R~[my feed/nativeid]~MT~foo',
+      'bar' => 'hm_some_prefix_MI~R~[my feed/nativeid]~MT~bar',
     }
   end
   let!(:hawkular_alert) do

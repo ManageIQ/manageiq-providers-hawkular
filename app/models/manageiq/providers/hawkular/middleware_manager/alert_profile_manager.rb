@@ -99,10 +99,8 @@ module ManageIQ::Providers
       data_id_map = {}
       prefix = group_trigger.context['dataId.hm.prefix'].nil? ? '' : group_trigger.context['dataId.hm.prefix']
 
-      feed = CGI.escape(server.feed)
-
       group_trigger.conditions.each do |condition|
-        id_prefix = "#{prefix}MI~R~[#{feed}/#{server.nativeid}]~MT~"
+        id_prefix = "#{prefix}MI~R~[#{server.feed}/#{server.nativeid}]~MT~"
 
         data_id_map[condition.data_id] = "#{id_prefix}#{condition.data_id}"
         unless condition.data2_id.nil?
