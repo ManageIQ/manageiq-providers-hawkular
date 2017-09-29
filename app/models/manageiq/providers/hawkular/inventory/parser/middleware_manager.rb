@@ -332,12 +332,21 @@ module ManageIQ::Providers
           not_started && eap.properties[x].nil? ? _('not yet available') : eap.properties[x]
         end
 
-        inventory_object.assign_attributes(
+        attributes = {
           :name      => name || parse_standalone_server_name(eap.id),
           :type_path => eap.type_path,
           :hostname  => hostname,
           :product   => product
-        )
+        }
+
+        case product
+        when /wildfly/i
+          attributes[:type] = 'ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareServerWildfly'
+        when /eap/i
+          attributes[:type] = 'ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareServerEap'
+        end
+
+        inventory_object.assign_attributes(attributes)
       end
 
       def associate_with_vm(server, feed)
