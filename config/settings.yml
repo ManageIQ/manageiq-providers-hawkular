@@ -17,6 +17,32 @@
           - hawkular_deployment.ok
           - hawkular_deployment_remove.ok
           - hawkular_event
+        :power:
+          :critical:
+          - MwServer.Restart.UserRequest
+          - MwServer.Restart.Success
+          - MwServer.Restart.Failed
+          - MwServer.Reload.UserRequest
+          - MwServer.Reload.Success
+          - MwServer.Reload.Failed
+          - MwServer.Suspend.UserRequest
+          - MwServer.Suspend.Success
+          - MwServer.Suspend.Failed
+          - MwServer.Resume.UserRequest
+          - MwServer.Resume.Success
+          - MwServer.Resume.Failed
+          - MwServer.Shutdown.UserRequest
+          - MwServer.Shutdown.Success
+          - MwServer.Shutdown.Failed
+          - MwServer.Start.UserRequest
+          - MwServer.Start.Success
+          - MwServer.Start.Failed
+          - MwServer.Stop.UserRequest
+          - MwServer.Stop.Success
+          - MwServer.Stop.Failed
+          - MwServer.Kill.UserRequest
+          - MwServer.Kill.Success
+          - MwServer.Kill.Failed
     :jdr:
       :generation_timeout: 3.minutes
 :ems_refresh:

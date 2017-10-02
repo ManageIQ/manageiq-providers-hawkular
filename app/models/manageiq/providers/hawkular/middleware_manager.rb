@@ -139,42 +139,42 @@ module ManageIQ::Providers
       run_generic_operation(:Shutdown, ems_ref, :restart => false, :timeout => timeout)
     end
 
-    def suspend_middleware_server(ems_ref, params = {})
+    def suspend_middleware_server(ems_ref, params = {}, extra_data = {})
       timeout = params[:timeout] || 0
-      run_generic_operation(:Suspend, ems_ref, :timeout => timeout)
+      run_generic_operation(:Suspend, ems_ref, {:timeout => timeout}, extra_data)
     end
 
-    def resume_middleware_server(ems_ref)
-      run_generic_operation(:Resume, ems_ref)
+    def resume_middleware_server(ems_ref, extra_data = {})
+      run_generic_operation(:Resume, ems_ref, {}, extra_data)
     end
 
-    def reload_middleware_server(ems_ref)
-      run_generic_operation(:Reload, ems_ref)
+    def reload_middleware_server(ems_ref, extra_data = {})
+      run_generic_operation(:Reload, ems_ref, {}, extra_data)
     end
 
     def stop_middleware_server(ems_ref)
-      run_generic_operation(:Shutdown, ems_ref)
+      run_generic_operation(:Shutdown, ems_ref, {}, {:original_operation => :Stop})
     end
 
-    def start_middleware_domain_server(ems_ref)
-      run_generic_operation(:Start, ems_ref)
+    def start_middleware_domain_server(ems_ref, extra_data = {})
+      run_generic_operation(:Start, ems_ref, {}, extra_data)
     end
 
-    def stop_middleware_domain_server(ems_ref)
-      run_generic_operation(:Stop, ems_ref)
+    def stop_middleware_domain_server(ems_ref, extra_data = {})
+      run_generic_operation(:Stop, ems_ref, {}, extra_data)
     end
 
     def restart_middleware_server(ems_ref)
-      run_generic_operation(:Shutdown, ems_ref, :restart => true)
+      run_generic_operation(:Shutdown, ems_ref, {:restart => true}, {:original_operation => :Restart})
     end
 
     # domain server ops
-    def restart_middleware_domain_server(ems_ref)
-      run_generic_operation(:Restart, ems_ref)
+    def restart_middleware_domain_server(ems_ref, extra_data = {})
+      run_generic_operation(:Restart, ems_ref, {}, extra_data)
     end
 
-    def kill_middleware_domain_server(ems_ref)
-      run_generic_operation(:Kill, ems_ref)
+    def kill_middleware_domain_server(ems_ref, extra_data = {})
+      run_generic_operation(:Kill, ems_ref, {}, extra_data)
     end
 
     # server group ops
@@ -234,7 +234,7 @@ module ManageIQ::Providers
           on.failure do |error|
             _log.error 'error callback was called, reason: ' + error.to_s
             emit_middleware_notification(:mw_op_failure, 'Add Datasource', datasource_data[:datasourceName], ems_ref,
-                                         MiddlewareServer)
+                                         MiddlewareServer, error.to_s)
           end
         end
       end
@@ -267,7 +267,7 @@ module ManageIQ::Providers
           on.failure do |error|
             _log.error 'error callback was called, reason: ' + error.to_s
             emit_middleware_notification(:mw_op_failure, 'Deploy', deployment_data[:destination_file_name], ems_ref,
-                                         MiddlewareServer)
+                                         MiddlewareServer, error.to_s)
           end
         end
       end
@@ -288,7 +288,7 @@ module ManageIQ::Providers
           end
           on.failure do |error|
             _log.error 'error callback was called, reason: ' + error.to_s
-            emit_middleware_notification(:mw_op_failure, 'Undeploy', deployment_name, ems_ref, MiddlewareDeployment)
+            emit_middleware_notification(:mw_op_failure, 'Undeploy', deployment_name, ems_ref, MiddlewareDeployment, error.to_s)
           end
         end
       end
@@ -310,7 +310,7 @@ module ManageIQ::Providers
           on.failure do |error|
             _log.error 'error callback was called, reason: ' + error.to_s
             emit_middleware_notification(:mw_op_failure, 'Disable Deployment', deployment_name, ems_ref,
-                                         MiddlewareDeployment)
+                                         MiddlewareDeployment, error.to_s)
           end
         end
       end
@@ -332,7 +332,7 @@ module ManageIQ::Providers
           on.failure do |error|
             _log.error 'error callback was called, reason: ' + error.to_s
             emit_middleware_notification(:mw_op_failure, 'Enable Deployment', deployment_name, ems_ref,
-                                         MiddlewareDeployment)
+                                         MiddlewareDeployment, error.to_s)
           end
         end
       end
@@ -354,7 +354,7 @@ module ManageIQ::Providers
           on.failure do |error|
             _log.error 'error callback was called, reason: ' + error.to_s
             emit_middleware_notification(:mw_op_failure, 'Restart Deployment', deployment_name, ems_ref,
-                                         MiddlewareDeployment)
+                                         MiddlewareDeployment, error.to_s)
           end
         end
       end
@@ -382,7 +382,7 @@ module ManageIQ::Providers
           on.failure do |error|
             _log.error 'error callback was called, reason: ' + error.to_s
             emit_middleware_notification(:mw_op_failure, 'Add JDBC Driver', driver_data[:driver_name], ems_ref,
-                                         MiddlewareServer)
+                                         MiddlewareServer, error.to_s)
           end
         end
       end
@@ -392,13 +392,15 @@ module ManageIQ::Providers
       run_specific_operation('RemoveDatasource', ems_ref)
     end
 
-    def emit_middleware_notification(type, op_name, op_arg, ems_ref, klass)
+    def emit_middleware_notification(type, op_name, op_arg, ems_ref, klass, extra_msg = nil)
       mw_entity = klass.find_by(:ems_ref => ems_ref) unless klass == MiddlewareServer
       mw_server = if mw_entity.nil?
                     MiddlewareServer.find_by(:ems_ref => ems_ref)
                   else
                     MiddlewareServer.find_by(:id => mw_entity.server_id)
                   end
+
+      return unless mw_server
 
       Notification.create(
         :type => type, :options => {
@@ -407,6 +409,27 @@ module ManageIQ::Providers
           :mw_server => "#{mw_server.name} (#{mw_server.feed})"
         }
       )
+
+      unless mw_entity
+        message = _('%{operation} operation for server %{server} %{status}') %
+                  {
+                    :operation => op_name,
+                    :server    => mw_server.name,
+                    :status    => type == :mw_op_success ? _('succeeded') : _('failed')
+                  }
+        message += ": #{extra_msg}" if extra_msg
+
+        EmsEvent.add_queue(
+          'add', id,
+          :ems_id          => id,
+          :source          => 'HAWKULAR',
+          :timestamp       => Time.zone.now,
+          :event_type      => "MwServer.#{op_name}.#{type == :mw_op_success ? 'Success' : 'Failed'}",
+          :message         => message,
+          :middleware_ref  => mw_server.ems_ref,
+          :middleware_type => 'MiddlewareServer'
+        )
+      end
     end
 
     # UI methods for determining availability of fields
@@ -480,13 +503,13 @@ module ManageIQ::Providers
     #
     # this method execute an operation through ExecuteOperation request command.
     #
-    def run_generic_operation(operation_name, ems_ref, parameters = {})
+    def run_generic_operation(operation_name, ems_ref, parameters = {}, extra_data = {})
       the_operation = {
         :operationName => operation_name,
         :resourcePath  => ems_ref.to_s,
         :parameters    => parameters
       }
-      run_operation(the_operation)
+      run_operation(the_operation, nil, extra_data)
     end
 
     #
@@ -498,18 +521,27 @@ module ManageIQ::Providers
       run_operation(parameters, operation_name)
     end
 
-    def run_operation(parameters, operation_name = nil)
+    def run_operation(parameters, operation_name = nil, extra_data = {})
       with_provider_connection do |connection|
         callback = proc do |on|
           on.success do |data|
-            _log.debug "Success on websocket-operation #{data}"
-            emit_middleware_notification(:mw_op_success, parameters[:operationName], nil, parameters[:resourcePath],
-                                         MiddlewareServer)
+            emit_middleware_notification(
+              :mw_op_success,
+              extra_data[:original_operation] || parameters[:operationName],
+              nil,
+              extra_data[:original_resource_path] || parameters[:resourcePath],
+              MiddlewareServer
+            )
           end
           on.failure do |error|
-            _log.error 'error callback was called, reason: ' + error.to_s
-            emit_middleware_notification(:mw_op_failure, parameters[:operationName], nil, parameters[:resourcePath],
-                                         MiddlewareServer)
+            emit_middleware_notification(
+              :mw_op_failure,
+              extra_data[:original_operation] || parameters[:operationName],
+              nil,
+              extra_data[:original_resource_path] || parameters[:resourcePath],
+              MiddlewareServer,
+              error.to_s
+            )
           end
         end
         operation_connection = connection.operations(true)
