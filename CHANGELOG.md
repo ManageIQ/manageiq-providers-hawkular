@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Unreleased as of Sprint 70 ending 2017-10-02
+
+### Fixed
+- Fixes event handling and generation of alternate machine in parser [(#59)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/59)
+- Fixes VMs and MW servers not being cross-linked when GUIDs differ only because of dashes [(#37)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/37)
+
 ## Unreleased as of Sprint 69 ending 2017-09-18
 
 ### Fixed
