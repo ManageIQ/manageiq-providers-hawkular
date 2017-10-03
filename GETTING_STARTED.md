@@ -22,7 +22,7 @@ Any Linux/OS X System is compatible, as far as we are concerned.
 First, install all system dependencies:
 
 ```bash
-sudo dnf -y git-all memcached postgresql-devel postgresql-server postgresql-contrib bzip2 libffi-devel readline-devel sqlite-devel nodejs gcc-c++ libcurl-devel npm openssl-devel cmake openscap
+sudo dnf install -y git-all memcached postgresql-devel postgresql-server postgresql-contrib bzip2 libffi-devel readline-devel sqlite-devel nodejs gcc-c++ libcurl-devel npm openssl-devel cmake openscap
 ```
 
 Then, install npm packages required for the UI:
