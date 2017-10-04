@@ -45,8 +45,8 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager do
     end
   end
 
-  describe 'middleware server operations:' do
-    let(:ems) { FactoryGirl.create(:ems_hawkular) }
+  describe 'middleware operations:' do
+    subject(:ems) { FactoryGirl.create(:ems_hawkular) }
     let(:mw_server) do
       FactoryGirl.create(
         :hawkular_middleware_server,
@@ -61,21 +61,17 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager do
         :ems_ref               => '/t;hawkular/f;master.Unnamed%20Domain/r;Local~~/r;Local~%2Fhost%3Dmaster/r;Local~%2Fhost%3Dmaster%2Fserver%3Dserver-one'
       )
     end
-
-    before(:all) do
-      NotificationType.seed
+    let(:mw_domain) do
+      FactoryGirl.create(
+        :hawkular_middleware_domain,
+        :ext_management_system => ems,
+        :ems_ref               => '/t;hawkular/f;master.Unnamed%20Domain/r;Local~~/r;Local~%2Fhost%3Dmaster'
+      )
     end
 
-    def event_expectation(mw_server, op_name, status)
-      expect(EmsEvent).to receive(:add_queue).with(
-        'add', ems.id,
-        hash_including(
-          :ems_id          => ems.id,
-          :event_type      => "MwServer.#{op_name}.#{status}",
-          :middleware_ref  => mw_server.ems_ref,
-          :middleware_type => 'MiddlewareServer'
-        )
-      )
+    before(:all) do
+      MiqServer.seed
+      NotificationType.seed
     end
 
     def notification_expectations(mw_server, op_name, type_name)
@@ -85,59 +81,109 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager do
       expect(notification.options[:mw_server]).to eq("#{mw_server.name} (#{mw_server.feed})")
     end
 
+    def timeline_server_expectations(mw_item, op_name, status)
+      event = EmsEvent.last
+      expect(event.ems_id).to eq(ems.id)
+      expect(event.event_type).to eq("MwServer.#{op_name}.#{status}")
+      expect(event.middleware_server_id).to eq(mw_item.id)
+      expect(event.middleware_server_name).to eq(mw_item.name)
+    end
+
+    def timeline_domain_expectations(status)
+      event = EmsEvent.last
+      expect(event.ems_id).to eq(ems.id)
+      expect(event.event_type).to eq("MwDomain.Stop.#{status}")
+      expect(event.middleware_domain_id).to eq(mw_domain.id)
+      expect(event.middleware_domain_name).to eq(mw_domain.name)
+    end
+
     %w(shutdown suspend resume reload restart stop).each do |operation|
-      it "#{operation} should create a user notificaton and timeline event on success" do
-        allow_any_instance_of(::Hawkular::Operations::Client).to receive(:invoke_generic_operation) do |_, &callback|
-          callback.perform(:success, nil)
+      describe operation do
+        it "should create a user notification and timeline event on success" do
+          allow_any_instance_of(::Hawkular::Operations::Client).to receive(:invoke_generic_operation) do |_, &callback|
+            callback.perform(:success, nil)
+          end
+
+          ems.public_send("#{operation}_middleware_server", mw_server.ems_ref)
+          MiqQueue.last.deliver
+
+          op_name = operation.capitalize
+          notification_expectations(mw_server, op_name.to_sym, 'mw_op_success')
+          timeline_server_expectations(mw_server, op_name, "Success")
         end
 
-        op_name = operation.capitalize
-        event_expectation(mw_server, op_name, "Success")
+        it "should create a user notification and timeline event on failure" do
+          allow_any_instance_of(::Hawkular::Operations::Client).to receive(:invoke_generic_operation) do |_, &callback|
+            callback.perform(:failure, 'Error')
+          end
 
-        ems.public_send("#{operation}_middleware_server", mw_server.ems_ref)
-        notification_expectations(mw_server, op_name.to_sym, 'mw_op_success')
-      end
+          ems.public_send("#{operation}_middleware_server", mw_server.ems_ref)
+          MiqQueue.last.deliver
 
-      it "#{operation} should create a user notificaton and timeline event on failure" do
-        allow_any_instance_of(::Hawkular::Operations::Client).to receive(:invoke_generic_operation) do |_, &callback|
-          callback.perform(:failure, 'Error')
+          op_name = operation.capitalize
+          notification_expectations(mw_server, op_name.to_sym, 'mw_op_failure')
+          timeline_server_expectations(mw_server, op_name, "Failed")
         end
-
-        op_name = operation.capitalize
-        event_expectation(mw_server, op_name, "Failed")
-
-        ems.public_send("#{operation}_middleware_server", mw_server.ems_ref)
-        notification_expectations(mw_server, op_name.to_sym, 'mw_op_failure')
       end
     end
 
     %w(start restart stop kill).each do |operation|
-      it "domain specific '#{operation}' operation should create a user notificaton and timeline event on success" do
+      describe "domain server specific '#{operation}' operation:" do
+        it "should create a user notification and timeline event on success" do
+          allow_any_instance_of(::Hawkular::Operations::Client).to receive(:invoke_generic_operation) do |_, &callback|
+            callback.perform(:success, nil)
+          end
+
+          ems.public_send("#{operation}_middleware_domain_server",
+                          mw_domain_server.ems_ref.sub(/%2Fserver%3D/, '%2Fserver-config%3D'),
+                          :original_resource_path => mw_domain_server.ems_ref)
+          MiqQueue.last.deliver
+
+          op_name = operation.capitalize
+          notification_expectations(mw_domain_server, op_name.to_sym, 'mw_op_success')
+          timeline_server_expectations(mw_domain_server, op_name, "Success")
+        end
+
+        it "should create a user notification and timeline event on failure" do
+          allow_any_instance_of(::Hawkular::Operations::Client).to receive(:invoke_generic_operation) do |_, &callback|
+            callback.perform(:failure, 'Error')
+          end
+
+          ems.public_send("#{operation}_middleware_domain_server",
+                          mw_domain_server.ems_ref.sub(/%2Fserver%3D/, '%2Fserver-config%3D'),
+                          :original_resource_path => mw_domain_server.ems_ref)
+          MiqQueue.last.deliver
+
+          op_name = operation.capitalize
+          notification_expectations(mw_domain_server, op_name.to_sym, 'mw_op_failure')
+          timeline_server_expectations(mw_domain_server, op_name, "Failed")
+        end
+      end
+    end
+
+    describe 'domain stop operation' do
+      it 'should create a user notification and timeline event on success' do
         allow_any_instance_of(::Hawkular::Operations::Client).to receive(:invoke_generic_operation) do |_, &callback|
           callback.perform(:success, nil)
         end
 
-        op_name = operation.capitalize
-        event_expectation(mw_domain_server, op_name, "Success")
+        ems.stop_middleware_server(mw_domain.ems_ref)
+        MiqQueue.last.deliver
 
-        ems.public_send("#{operation}_middleware_domain_server",
-                        mw_domain_server.ems_ref.sub(/%2Fserver%3D/, '%2Fserver-config%3D'),
-                        :original_resource_path => mw_domain_server.ems_ref)
-        notification_expectations(mw_domain_server, op_name.to_sym, 'mw_op_success')
+        notification_expectations(mw_domain, :Stop, 'mw_op_success')
+        timeline_domain_expectations('Success')
       end
 
-      it "domain specific '#{operation}' operation should create a user notificaton and timeline event on failure" do
+      it 'should create a user notification and timeline event on failure' do
         allow_any_instance_of(::Hawkular::Operations::Client).to receive(:invoke_generic_operation) do |_, &callback|
-          callback.perform(:failure, 'Error')
+          callback.perform(:failure, nil)
         end
 
-        op_name = operation.capitalize
-        event_expectation(mw_domain_server, op_name, "Failed")
+        ems.stop_middleware_server(mw_domain.ems_ref)
+        MiqQueue.last.deliver
 
-        ems.public_send("#{operation}_middleware_domain_server",
-                        mw_domain_server.ems_ref.sub(/%2Fserver%3D/, '%2Fserver-config%3D'),
-                        :original_resource_path => mw_domain_server.ems_ref)
-        notification_expectations(mw_domain_server, op_name.to_sym, 'mw_op_failure')
+        notification_expectations(mw_domain, :Stop, 'mw_op_failure')
+        timeline_domain_expectations('Failed')
       end
     end
   end

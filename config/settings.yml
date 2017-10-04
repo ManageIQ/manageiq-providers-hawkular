@@ -43,6 +43,9 @@
           - MwServer.Kill.UserRequest
           - MwServer.Kill.Success
           - MwServer.Kill.Failed
+          - MwDomain.Stop.UserRequest
+          - MwDomain.Stop.Success
+          - MwDomain.Stop.Failed
     :jdr:
       :generation_timeout: 3.minutes
 :ems_refresh:
