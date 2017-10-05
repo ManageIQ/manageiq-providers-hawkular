@@ -202,7 +202,7 @@ module ManageIQ::Providers
         collection = persister.middleware_domains
         fetch_availabilities_for(feeds, collection, collection.model_class::AVAIL_TYPE_ID) do |domain, availability|
           domain.properties['Availability'] =
-            process_deployment_availability(availability.try(:[], 'data').try(:first))
+            process_domain_availability(availability.try(:[], 'data').try(:first))
         end
       end
 
@@ -280,15 +280,15 @@ module ManageIQ::Providers
       end
 
       def process_deployment_availability(availability = nil)
-        if availability.blank? || availability['value'].casecmp('unknown').zero?
-          'Unknown'
-        elsif availability['value'].casecmp('up').zero?
-          'Enabled'
-        elsif availability['value'].casecmp('down').zero?
-          'Disabled'
-        else
-          'Unknown'
-        end
+        process_availability(availability, 'up' => 'Enabled', 'down' => 'Disabled')
+      end
+
+      def process_domain_availability(availability = nil)
+        process_availability(availability, 'up' => 'Running', 'down' => 'Stopped')
+      end
+
+      def process_availability(availability, translation = {})
+        translation.fetch(availability.try(:[], 'value').try(:downcase), 'Unknown')
       end
 
       def parse_deployment(deployment, inventory_object)

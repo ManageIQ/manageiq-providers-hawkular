@@ -50,12 +50,9 @@ class ManageIQ::Providers::Hawkular::MiddlewareManager::EventCatcher::Stream
     parser = ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager.new
     parser.collector = ManageIQ::Providers::Hawkular::Inventory::Collector::MiddlewareManager.new(@ems, nil)
 
-    server_avails = fetch_server_availabilities(parser)
-    deploy_avails = fetch_deployment_availabilities(parser)
-    domain_avails = fetch_domain_availabilities(parser)
-
-    server_avails.concat(deploy_avails)
-    server_avails.concat(domain_avails)
+    fetch_server_availabilities(parser) +
+      fetch_deployment_availabilities(parser) +
+      fetch_domain_availabilities(parser)
   end
 
   def fetch_server_availabilities(parser)
@@ -109,8 +106,8 @@ class ManageIQ::Providers::Hawkular::MiddlewareManager::EventCatcher::Stream
 
   def fetch_domain_availabilities(parser)
     fetch_entities_availabilities(parser, @ems.middleware_domains.reload) do |item, avail|
-      status = parser.process_deployment_availability(avail)
-      next nil if item.availability == status
+      status = parser.process_domain_availability(avail)
+      next if item.availability == status
 
       {
         :ems_ref     => item.ems_ref,

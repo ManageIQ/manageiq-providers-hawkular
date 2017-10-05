@@ -22,6 +22,7 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::AvailabilityUpdates d
 
       # Verify
       item = persister.middleware_servers.find('abc')
+      expect(item).to be
       expect(item.manager_uuid).to eq('abc')
       expect(item.properties).to eq(avail_data)
 
@@ -72,7 +73,8 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::AvailabilityUpdates d
       expect(item.manager_uuid).to eq('dom')
       expect(item.properties).to eq(avail_data)
 
-      expect(persister.middleware_domains.size).to be_zero
+      expect(persister.middleware_servers.size).to be_zero
+      expect(persister.middleware_deployments.size).to be_zero
     end
 
     it "must create one persister item if two servers in collector have same ems_ref" do

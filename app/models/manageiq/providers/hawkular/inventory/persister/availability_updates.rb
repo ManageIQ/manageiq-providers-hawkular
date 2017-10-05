@@ -1,51 +1,38 @@
 module ManageIQ::Providers
   class Hawkular::Inventory::Persister::AvailabilityUpdates < Hawkular::Inventory::Persister::MiddlewareManager
     def self.save_deployments(ems, collection)
-      ::ActiveRecord::Base.transaction do
-        collection.to_a.each do |item|
-          deployment = ems.middleware_deployments.find_by(:ems_ref => item.manager_uuid)
-          next unless deployment # if deployment is not found in the database, it is ignored.
-
-          $mw_log.debug("EMS_#{ems.id}(Persister::AvailabilityUpdates): " \
-                        "Updating status #{deployment.status} -> #{item.status} for deployment #{deployment.ems_ref}")
-
-          deployment.status = item.status
-          deployment.save!
-        end
+      save_resource(ems, collection, :deployment) do |deployment, item|
+        deployment.status = item.status
       end
     end
 
     def self.save_servers(ems, collection)
-      ::ActiveRecord::Base.transaction do
-        collection.to_a.each do |item|
-          data_to_update = item.properties.try(:slice, 'Server State', 'Availability', 'Calculated Server State')
-          next if data_to_update.blank?
+      save_resource(ems, collection, :server) do |server, item|
+        data_to_update = item.properties.try(:slice, 'Server State', 'Availability', 'Calculated Server State')
+        next if data_to_update.blank?
 
-          server = ems.middleware_servers.find_by(:ems_ref => item.manager_uuid)
-          next unless server # if no matching server is in the database, there is nothing to update
-
-          $mw_log.debug("EMS_#{ems.id}(Persister::AvailabilityUpdates): " \
-                        "Updating status to #{item.properties} for server #{server.ems_ref}")
-
-          server.properties = {} if server.properties.blank?
-          server.properties.merge!(data_to_update)
-          server.save!
-        end
+        server.properties = {} if server.properties.blank?
+        server.properties.merge!(data_to_update)
       end
     end
 
     def self.save_domains(ems, collection)
-      byebug
+      save_resource(ems, collection, :domain) do |domain, item|
+        domain.availability = item.properties['Availability']
+      end
+    end
+
+    def self.save_resource(ems, collection, resource_name)
       ::ActiveRecord::Base.transaction do
         collection.to_a.each do |item|
-          domain = ems.middleware_domains.find_by(:ems_ref => item.manager_uuid)
-          next unless domain
+          resource = ems.send("middleware_#{resource_name.to_s.pluralize}").find_by(:ems_ref => item.manager_uuid)
+          next unless resource
 
           $mw_log.debug("EMS_#{ems.id}(Persister::AvailabilityUpdates): " \
-                        "Updating status #{domain.status} -> #{domain.status} for domain #{domain.ems_ref}")
+                        "Updating availability #{resource.properties} -> #{resource.properties} for #{resource_name} #{resource.ems_ref}")
 
-          domain.status = item.status
-          domain.save!
+          yield(resource, item)
+          resource.save!
         end
       end
     end

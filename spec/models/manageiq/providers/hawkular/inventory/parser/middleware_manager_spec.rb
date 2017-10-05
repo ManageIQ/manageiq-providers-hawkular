@@ -261,18 +261,19 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
   end
 
   describe 'fetch_domain_availabilities' do
-    let(:stubbed_domain) { FactoryGirl.create(:hawkular_middleware_server,
-                       :name                  => 'Local',
-                       :feed                  => the_feed_id,
-                       :ems_ref               => '/t;Hawkular'\
-                                                 "/f;#{the_feed_id}/r;Local~~",
-                       :nativeid              => 'Local~~',
-                       :ext_management_system => ems_hawkular,
-                       :properties            => { 'Server Status' => 'Inventory Status' })
-    }
+    let(:domain) do
+      FactoryGirl.create(:hawkular_middleware_server,
+                         :name                  => 'Local',
+                         :feed                  => the_feed_id,
+                         :ems_ref               => '/t;Hawkular'\
+                                                     "/f;#{the_feed_id}/r;Local~~",
+                         :nativeid              => 'Local~~',
+                         :ext_management_system => ems_hawkular,
+                         :properties            => { 'Server Status' => 'Inventory Status' })
+    end
 
     before do
-      domains_collection = [stubbed_domain]
+      domains_collection = [domain]
       domains_collection.define_singleton_method(
         :model_class,
         -> { ::ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareDomain }
@@ -280,40 +281,40 @@ describe ManageIQ::Providers::Hawkular::Inventory::Parser::MiddlewareManager do
 
       allow(persister_double).to receive(:middleware_domains).and_return(domains_collection)
       allow(parser).to receive(:fetch_availabilities_for)
-        .and_yield(stubbed_domain, stubbed_metric_data)
+        .and_yield(domain, stubbed_metric_data)
     end
 
     it 'uses fetch_availabilities_for to fetch domain availabilities' do
       parser.fetch_domain_availabilities(%w(f1))
       expect(parser).to have_received(:fetch_availabilities_for)
-        .with(%w(f1), [stubbed_domain], 'Server%20Availability~Server%20Availability')
+        .with(%w(f1), [domain], 'Domain%20Availability~Domain%20Availability')
     end
 
     it 'assigns enabled status to a domain with "up" metric' do
       stubbed_metric_data.data.first['value'] = 'up'
 
       parser.fetch_domain_availabilities(%w(f1))
-      expect(stubbed_domain.properties['Availability']).to eq('Enabled')
+      expect(domain.properties).to include('Availability' => 'Running')
     end
 
     it 'assigns disabled status to a domain with "down" metric' do
       stubbed_metric_data.data.first['value'] = 'down'
 
       parser.fetch_domain_availabilities(%w(f1))
-      expect(stubbed_domain.properties['Availability']).to eq('Disabled')
+      expect(domain.properties).to include('Availability' => 'Stopped')
     end
 
     it 'assigns unknown status to a domain whose metric is something else than "up" or "down"' do
       parser.fetch_domain_availabilities(%w(f1))
-      expect(stubbed_domain.properties['Availability']).to eq('Unknown')
+      expect(domain.properties).to include('Availability' => 'Unknown')
     end
 
     it 'assigns unknown status to a domain with a missing metric' do
       allow(parser).to receive(:fetch_availabilities_for)
-        .and_yield(stubbed_domain, nil)
+        .and_yield(domain, nil)
 
       parser.fetch_domain_availabilities(%w(f1))
-      expect(stubbed_domain.properties['Availability']).to eq('Unknown')
+      expect(domain.properties).to include('Availability' => 'Unknown')
     end
   end
 

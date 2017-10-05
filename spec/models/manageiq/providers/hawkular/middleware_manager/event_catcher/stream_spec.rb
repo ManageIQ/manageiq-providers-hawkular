@@ -48,6 +48,10 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::EventCatcher::Stream 
       .with(hawkular_cp(:feed_id        => 'f1',
                         :metric_type_id => ::ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareDeployment::AVAIL_TYPE_ID))
       .and_return([resource_metric_definition])
+    allow(client).to receive(:list_metrics_for_metric_type)
+      .with(hawkular_cp(:feed_id        => 'f1',
+                        :metric_type_id => ::ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareDomain::AVAIL_TYPE_ID))
+      .and_return([resource_metric_definition])
 
     client
   end
@@ -293,57 +297,43 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::EventCatcher::Stream 
         :feed       => 'f1',
         :ems_ref    => '/t;hawkular/f;f1/r;resource1',
         :properties => {
-          'Server State'            => 'down',
-          'Availability'            => 'Disabled',
+          'Server State' => 'down',
+          'Availability' => 'Stopped',
         }
       )
     end
 
-    it "must return updated status for deployment whose availability has changed" do
-      # Try
+    it "returns updated status for domain whose availability has changed" do
       updates = subject.send(:fetch_availabilities)
 
-      # Verify
       expect(updates).to eq(
         [{
           :ems_ref     => db_domain.ems_ref,
           :association => :middleware_domains,
-          :data        => {
-            :properties =>  {
-              'Availability' => 'Enabled'
-            }
-          }
+          :data        => { :properties => { 'Availability' => 'Running' } }
         }]
       )
     end
 
-    it "must omit deployment with unchanged availability" do
-      # Set-up
+    it "omits domain with unchanged availability" do
       availability_metric['data'][0]['value'] = 'down'
 
-      # Try
       updates = subject.send(:fetch_availabilities)
 
-      # Verify
       expect(updates).to be_blank
     end
 
-    it "must set unknown status if deployment availability has expired or is not present" do
-      # Set-up
+    it "sets unknown status if domain availability has expired or is not present" do
       allow(stubbed_metrics_client).to receive_message_chain(:avail, :raw_data)
         .with(['m1'], any_args).and_return([])
 
-      # Try
       updates = subject.send(:fetch_availabilities)
 
-      # Verify
       expect(updates).to eq(
         [{
           :ems_ref     => db_domain.ems_ref,
           :association => :middleware_domains,
-          :data        => {
-            :properties =>  { 'Availability' => 'Unknown' }
-          }
+          :data        => { :properties => { 'Availability' => 'Unknown' } }
         }]
       )
     end

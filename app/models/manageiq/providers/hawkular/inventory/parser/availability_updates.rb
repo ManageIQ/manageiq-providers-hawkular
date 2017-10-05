@@ -8,23 +8,27 @@ module ManageIQ::Providers
 
     private
 
+    def find_updated_resource(resource_name)
+      collector.send("#{resource_name}_updates").each do |item|
+        resource = persister.send("middleware_#{resource_name.to_s.pluralize}").find_or_build(item.manager_ref[:ems_ref])
+        yield(resource, item)
+      end
+    end
+
     def fetch_server_availabilities
-      collector.server_updates.each do |item|
-        server = persister.middleware_servers.find_or_build(item.manager_ref[:ems_ref])
+      find_updated_resource(:server) do |server, item|
         server.properties = item.options
       end
     end
 
     def fetch_deployment_availabilities
-      collector.deployment_updates.each do |item|
-        deployment = persister.middleware_deployments.find_or_build(item.manager_ref[:ems_ref])
+      find_updated_resource(:deployment) do |deployment, item|
         deployment.status = item.options[:status]
       end
     end
 
     def fetch_domain_availabilities
-      collector.domain_updates.each do |item|
-        domain = persister.middleware_domains.find_or_build(item.manager_ref[:ems_ref])
+      find_updated_resource(:domain) do |domain, item|
         domain.properties = item.options
       end
     end
