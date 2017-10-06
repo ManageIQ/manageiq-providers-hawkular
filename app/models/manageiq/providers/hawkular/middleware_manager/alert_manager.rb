@@ -97,21 +97,50 @@ module ManageIQ::Providers
                                       })
     end
 
+    MW_WEB_SESSIONS = %w(
+      mw_aggregated_active_web_sessions
+      mw_aggregated_expired_web_sessions
+      mw_aggregated_rejected_web_sessions
+    ).freeze
+
+    MW_DATASTORE = %w(
+      mw_ds_available_count
+      mw_ds_in_use_count
+      mw_ds_timed_out
+      mw_ds_average_get_time
+      mw_ds_average_creation_time
+      mw_ds_max_wait_time
+    ).freeze
+
+    MW_MESSAGING = %w(
+      mw_ms_topic_delivering_count
+      mw_ms_topic_durable_message_count
+      mw_ms_topic_non_durable_message_count
+      mw_ms_topic_message_count
+      mw_ms_topic_message_added
+      mw_ms_topic_durable_subscription_count
+      mw_ms_topic_non_durable_subscription_count
+      mw_ms_topic_subscription_count
+    ).freeze
+
+    MW_TRANSACTIONS = %w(
+      mw_tx_committed
+      mw_tx_timeout
+      mw_tx_heuristics
+      mw_tx_application_rollbacks
+      mw_tx_resource_rollbacks
+      mw_tx_aborted
+    ).freeze
     def convert_to_group_conditions(miq_alert)
       eval_method = miq_alert[:conditions][:eval_method]
       options = miq_alert[:conditions][:options]
       case eval_method
       when "mw_accumulated_gc_duration"       then generate_mw_gc_condition(eval_method, options)
       when "mw_heap_used", "mw_non_heap_used" then generate_mw_jvm_conditions(eval_method, options)
-      when "mw_aggregated_active_web_sessions",
-           "mw_aggregated_expired_web_sessions",
-           "mw_aggregated_rejected_web_sessions",
-           "mw_ds_available_count",
-           "mw_ds_in_use_count",
-           "mw_ds_timed_out",
-           "mw_ds_average_get_time",
-           "mw_ds_average_creation_time",
-           "mw_ds_max_wait_time" then generate_mw_generic_threshold_conditions(eval_method, options)
+      when *MW_WEB_SESSIONS,
+           *MW_DATASTORE,
+           *MW_MESSAGING,
+           *MW_TRANSACTIONS then generate_mw_generic_threshold_conditions(eval_method, options)
       end
     end
 
