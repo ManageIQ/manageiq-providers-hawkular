@@ -103,6 +103,15 @@ module ManageIQ::Providers
       case eval_method
       when "mw_accumulated_gc_duration"       then generate_mw_gc_condition(eval_method, options)
       when "mw_heap_used", "mw_non_heap_used" then generate_mw_jvm_conditions(eval_method, options)
+      when "mw_aggregated_active_web_sessions",
+           "mw_aggregated_expired_web_sessions",
+           "mw_aggregated_rejected_web_sessions",
+           "mw_ds_available_count",
+           "mw_ds_in_use_count",
+           "mw_ds_timed_out",
+           "mw_ds_average_get_time",
+           "mw_ds_average_creation_time",
+           "mw_ds_max_wait_time" then generate_mw_generic_threshold_conditions(eval_method, options)
       end
     end
 
@@ -140,6 +149,28 @@ module ManageIQ::Providers
       c.operator = operator
       c.data2_multiplier = data2_multiplier
       c
+    end
+
+    def generate_mw_threshold_condition(data_id, operator, threshold)
+      c = ::Hawkular::Alerts::Trigger::Condition.new({})
+      c.trigger_mode = :FIRING
+      c.data_id = data_id
+      c.type = :THRESHOLD
+      c.operator = operator
+      c.threshold = threshold
+      c
+    end
+
+    def generate_mw_generic_threshold_conditions(eval_method, options)
+      ::Hawkular::Alerts::Trigger::GroupConditionsInfo.new(
+        [
+          generate_mw_threshold_condition(
+            mw_server_metrics_by_column[eval_method],
+            convert_operator(options[:mw_operator]),
+            options[:value_mw_threshold].to_i
+          )
+        ]
+      )
     end
 
     def convert_operator(op)
