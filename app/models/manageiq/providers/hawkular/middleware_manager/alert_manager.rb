@@ -103,7 +103,7 @@ module ManageIQ::Providers
       mw_aggregated_rejected_web_sessions
     ).freeze
 
-    MW_DATASTORE = %w(
+    MW_DATASOURCE = %w(
       mw_ds_available_count
       mw_ds_in_use_count
       mw_ds_timed_out
@@ -138,7 +138,7 @@ module ManageIQ::Providers
       when "mw_accumulated_gc_duration"       then generate_mw_gc_condition(eval_method, options)
       when "mw_heap_used", "mw_non_heap_used" then generate_mw_jvm_conditions(eval_method, options)
       when *MW_WEB_SESSIONS,
-           *MW_DATASTORE,
+           *MW_DATASOURCE,
            *MW_MESSAGING,
            *MW_TRANSACTIONS then generate_mw_generic_threshold_conditions(eval_method, options)
       end
