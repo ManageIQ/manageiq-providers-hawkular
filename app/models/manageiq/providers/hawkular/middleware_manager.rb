@@ -586,35 +586,37 @@ module ManageIQ::Providers
     private_constant :NotificationArgs
 
     def emit_middleware_notification(notification_args)
-      mw_entity = notification_args.entity_klass.find_by(:ems_ref => ems_ref) unless notification_args.entity_klass == MiddlewareServer
-      mw_server = if mw_entity.nil?
-                    MiddlewareServer.find_by(:ems_ref => notification_args.target_resource) ||
-                      MiddlewareDomain.find_by(:ems_ref => notification_args.target_resource)
-                  else
-                    MiddlewareServer.find_by(:id => mw_entity.server_id)
-                  end
+      ActiveRecord::Base.connection_pool.with_connection do
+        mw_entity = notification_args.entity_klass.find_by(:ems_ref => ems_ref) unless notification_args.entity_klass == MiddlewareServer
+        mw_server = if mw_entity.nil?
+                      MiddlewareServer.find_by(:ems_ref => notification_args.target_resource) ||
+                        MiddlewareDomain.find_by(:ems_ref => notification_args.target_resource)
+                    else
+                      MiddlewareServer.find_by(:id => mw_entity.server_id)
+                    end
 
-      return unless mw_server
+        return unless mw_server
 
-      Notification.create(
-        :type => notification_args.type, :options => {
-          :op_name   => notification_args.operation_name,
-          :op_arg    => notification_args.operation_args || '',
-          :mw_server => "#{mw_server.name} (#{mw_server.feed})"
-        }
-      )
-
-      unless mw_entity
-        EmsEvent.add_queue(
-          'add', id,
-          :ems_id          => id,
-          :source          => 'HAWKULAR',
-          :timestamp       => Time.zone.now,
-          :event_type      => notification_args.event_type(mw_server),
-          :message         => notification_args.event_message(mw_server),
-          :middleware_ref  => mw_server.ems_ref,
-          :middleware_type => mw_server.class.name.demodulize
+        Notification.create(
+          :type => notification_args.type, :options => {
+            :op_name   => notification_args.operation_name,
+            :op_arg    => notification_args.operation_args || '',
+            :mw_server => "#{mw_server.name} (#{mw_server.feed})"
+          }
         )
+
+        unless mw_entity
+          EmsEvent.add_queue(
+            'add', id,
+            :ems_id          => id,
+            :source          => 'HAWKULAR',
+            :timestamp       => Time.zone.now,
+            :event_type      => notification_args.event_type(mw_server),
+            :message         => notification_args.event_message(mw_server),
+            :middleware_ref  => mw_server.ems_ref,
+            :middleware_type => mw_server.class.name.demodulize
+          )
+        end
       end
     end
 
