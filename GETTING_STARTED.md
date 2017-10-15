@@ -34,8 +34,7 @@ sudo npm install -g bower yarn webpack gulp
 Start Memcached:
 
 ```bash
-sudo systemctl enable memcached
-sudo systemctl start memcached
+sudo systemctl enable memcached && sudo systemctl start memcached
 ```
 
 Then, configure, install and run PostgreSQL:
@@ -44,8 +43,7 @@ Then, configure, install and run PostgreSQL:
 sudo postgresql-setup --initdb --unit postgresql
 sudo grep -q '^local\s' /var/lib/pgsql/data/pg_hba.conf || echo "local all all trust" | sudo tee -a /var/lib/pgsql/data/pg_hba.conf
 sudo sed -i.bak 's/\(^local\s*\w*\s*\w*\s*\)\(peer$\)/\1trust/' /var/lib/pgsql/data/pg_hba.conf
-sudo systemctl enable postgresql
-sudo systemctl start postgresql
+sudo systemctl enable postgresql && sudo systemctl start postgresql
 sudo su postgres -c "psql -c \"CREATE ROLE root SUPERUSER LOGIN PASSWORD 'smartvm'\""
 ```
 
