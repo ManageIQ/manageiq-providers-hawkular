@@ -75,7 +75,7 @@ gem install bundler --no-ri --no-rdoc
 The first necessary step is to fork the following repositories by running this command:
 
 ```bash
-curl -u '<your_github_user>' https://api.github.com/repos/ManageIQ/manageiq/forks \
+curl -u '<your_github_username>' https://api.github.com/repos/ManageIQ/manageiq/forks \
 https://api.github.com/repos/ManageIQ/manageiq-ui-classic/forks \
 https://api.github.com/repos/ManageIQ/manageiq-schema/forks \
 https://api.github.com/repos/ManageIQ/manageiq-api/forks \
@@ -87,12 +87,12 @@ Then, we clone them:
 
 ```bash
 mkdir ~/ManageIQ && cd ~/ManageIQ
-git clone git@github.com:<your-username>/manageiq
-git clone git@github.com:<your-username>/manageiq-ui-classic
-git clone git@github.com:<your-username>/manageiq-schema
-git clone git@github.com:<your-username>/manageiq-api
-git clone git@github.com:<your-username>/manageiq-providers-hawkular
-git clone git@github.com:<your-username>/hawkular-client-ruby
+git clone git@github.com:<your_github_username>/manageiq
+git clone git@github.com:<your_github_username>/manageiq-ui-classic
+git clone git@github.com:<your_github_username>/manageiq-schema
+git clone git@github.com:<your_github_username>/manageiq-api
+git clone git@github.com:<your_github_username>/manageiq-providers-hawkular
+git clone git@github.com:<your_github_username>/hawkular-client-ruby
 ```
 
 And then we add the upstream remotes to fetch changes on the main codebase:
