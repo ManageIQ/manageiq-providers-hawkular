@@ -5,7 +5,7 @@ running for development.
 
 ## Dependencies
 
-* Ruby 2.3+ (Ruby 2.4.1 recommended)
+* Ruby 2.3.1+ (Ruby 2.4.1 recommended)
 * Bundler 1.15.3+
 * PostgreSQL 9.5+
 * Memcached
