@@ -25,9 +25,11 @@ Read the [Troubleshooting page](TROUBLESHOOTING.md).
 The gem is available as open source under the terms of the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 ## Contributing
-
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+As also described [here](https://github.com/ManageIQ/manageiq-providers-hawkular/blob/master/GETTING_STARTED.md#cloning-and-configuring-the-application):
+1. Fork the repository
+2. Clone the repository to your local dev environment
+3. Add its upstream pointer to the remote main repository
+4. Create your feature branch (`git checkout -b my-new-feature`)
+5. Commit your changes (`git commit -am 'Add some feature'`)
+6. Push to the branch (`git push origin my-new-feature`)
+7. Create a new Pull Request
