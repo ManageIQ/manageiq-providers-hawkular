@@ -1,3 +1,5 @@
+require 'middleware_notification'
+
 # TODO: remove the module and just make this:
 # class ManageIQ::Providers::Hawkular::MiddlewareManager < ManageIQ::Providers::MiddlewareManager
 module ManageIQ::Providers
@@ -548,6 +550,7 @@ module ManageIQ::Providers
             _log.debug "Success on websocket-operation #{data}"
             emit_middleware_notification(notification_args)
           end
+
           on.failure do |error|
             _log.error 'error callback was called, reason: ' + error.to_s
             notification_args.type = :mw_op_failure
@@ -555,6 +558,7 @@ module ManageIQ::Providers
             emit_middleware_notification(notification_args)
           end
         end
+
         operation_connection = connection.operations(true)
         if operation_name.nil?
           operation_connection.invoke_generic_operation(parameters, &callback)
@@ -564,60 +568,8 @@ module ManageIQ::Providers
       end
     end
 
-    NotificationArgs = Struct.new(:type, :operation_name, :operation_args,
-                                  :target_resource, :entity_klass, :detailed_message) do
-      def event_type(mw_entity)
-        '%{entity_type}.%{operation}.%{status}' %
-          { :entity_type => mw_entity.kind_of?(MiddlewareServer) ? 'MwServer' : 'MwDomain',
-            :operation   => operation_name,
-            :status      => type == :mw_op_success ? 'Success' : 'Failed' }
-      end
-
-      def event_message(mw_entity)
-        message = _('%{operation} operation for %{server} %{status}') %
-                  {
-                    :operation => operation_name,
-                    :server    => mw_entity.name,
-                    :status    => type == :mw_op_success ? _('succeeded') : _('failed')
-                  }
-        message + ": #{detailed_message}" if detailed_message
-      end
-    end
-    private_constant :NotificationArgs
-
     def emit_middleware_notification(notification_args)
-      ActiveRecord::Base.connection_pool.with_connection do
-        mw_entity = notification_args.entity_klass.find_by(:ems_ref => ems_ref) unless notification_args.entity_klass == MiddlewareServer
-        mw_server = if mw_entity.nil?
-                      MiddlewareServer.find_by(:ems_ref => notification_args.target_resource) ||
-                        MiddlewareDomain.find_by(:ems_ref => notification_args.target_resource)
-                    else
-                      MiddlewareServer.find_by(:id => mw_entity.server_id)
-                    end
-
-        return unless mw_server
-
-        Notification.create(
-          :type => notification_args.type, :options => {
-            :op_name   => notification_args.operation_name,
-            :op_arg    => notification_args.operation_args || '',
-            :mw_server => "#{mw_server.name} (#{mw_server.feed})"
-          }
-        )
-
-        unless mw_entity
-          EmsEvent.add_queue(
-            'add', id,
-            :ems_id          => id,
-            :source          => 'HAWKULAR',
-            :timestamp       => Time.zone.now,
-            :event_type      => notification_args.event_type(mw_server),
-            :message         => notification_args.event_message(mw_server),
-            :middleware_ref  => mw_server.ems_ref,
-            :middleware_type => mw_server.class.name.demodulize
-          )
-        end
-      end
+      MiddlewareNotification.new(notification_args, self).emit
     end
 
     def self.process_old_assignments_ids(old_assignments)
