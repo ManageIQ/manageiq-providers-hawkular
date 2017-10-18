@@ -1,4 +1,4 @@
-class NotificationArgs < Struct.new(:type, :operation_name, :operation_args, :target_resource, :entity_klass, :detailed_message)
+NotificationArgs = Struct.new(:type, :operation_name, :operation_args, :target_resource, :entity_klass, :detailed_message) do
   def event_type(entity)
     attributes = {
       :entity_type => entity.kind_of?(MiddlewareServer) ? 'MwServer' : 'MwDomain',
@@ -10,7 +10,7 @@ class NotificationArgs < Struct.new(:type, :operation_name, :operation_args, :ta
   end
 
   def event_message(entity)
-    attributes =  {
+    attributes = {
       :operation => operation_name,
       :server    => entity.name,
       :status    => type == :mw_op_success ? _('succeeded') : _('failed')

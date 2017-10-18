@@ -101,11 +101,14 @@ module OperationDispatcher
         )
 
         on.success do |data|
-          _log.debug "Success on websocket-operation #{data}"
+          _log.debug("Success on websocket-operation #{data}")
+
           emit_middleware_notification(notification_args)
         end
+
         on.failure do |error|
-          _log.error 'error callback was called, reason: ' + error.to_s
+          _log.error("error callback was called, reason: #{error}")
+
           notification_args.type = :mw_op_failure
           notification_args.detailed_message = error.to_s
           emit_middleware_notification(notification_args)
@@ -140,12 +143,16 @@ module OperationDispatcher
           ems_ref,
           MiddlewareServer
         )
+
         on.success do |data|
-          _log.debug "Success on websocket-operation #{data}"
+          _log.debug("Success on websocket-operation #{data}")
+
           emit_middleware_notification(notification_args)
         end
+
         on.failure do |error|
-          _log.error 'error callback was called, reason: ' + error.to_s
+          _log.error("error callback was called, reason: #{error}")
+
           notification_args.type = :mw_op_failure
           notification_args.detailed_message = error.to_s
           emit_middleware_notification(notification_args)
@@ -172,11 +179,14 @@ module OperationDispatcher
         )
 
         on.success do |data|
-          _log.debug "Success on websocket-operation #{data}"
+          _log.debug("Success on websocket-operation #{data}")
+
           emit_middleware_notification(notification_args)
         end
+
         on.failure do |error|
-          _log.error 'error callback was called, reason: ' + error.to_s
+          _log.error("error callback was called, reason: #{error}")
+
           notification_args.type = :mw_op_failure
           notification_args.detailed_message = error.to_s
           emit_middleware_notification(notification_args)
@@ -200,12 +210,16 @@ module OperationDispatcher
           ems_ref,
           MiddlewareDeployment
         )
+
         on.success do |data|
-          _log.debug "Success on websocket-operation #{data}"
+          _log.debug("Success on websocket-operation #{data}")
+
           emit_middleware_notification(notification_args)
         end
+
         on.failure do |error|
-          _log.error 'error callback was called, reason: ' + error.to_s
+          _log.error("error callback was called, reason: #{error}")
+
           notification_args.type = :mw_op_failure
           notification_args.detailed_message = error.to_s
           emit_middleware_notification(notification_args)
@@ -228,12 +242,16 @@ module OperationDispatcher
           deployment_name, ems_ref,
           MiddlewareDeployment
         )
+
         on.success do |data|
           _log.debug "Success on websocket-operation #{data}"
+
           emit_middleware_notification(notification_args)
         end
+
         on.failure do |error|
           _log.error 'error callback was called, reason: ' + error.to_s
+
           notification_args.type = :mw_op_failure
           notification_args.detailed_message = error.to_s
           emit_middleware_notification(notification_args)
@@ -259,10 +277,13 @@ module OperationDispatcher
         )
         on.success do |data|
           _log.debug "Success on websocket-operation #{data}"
+
           emit_middleware_notification(notification_args)
         end
+
         on.failure do |error|
-          _log.error 'error callback was called, reason: ' + error.to_s
+          _log.error("error callback was called, reason: #{error}")
+
           notification_args.type = :mw_op_failure
           notification_args.detailed_message = error.to_s
           emit_middleware_notification(notification_args)
@@ -293,11 +314,14 @@ module OperationDispatcher
           MiddlewareServer
         )
         on.success do |data|
-          _log.debug "Success on websocket-operation #{data}"
+          _log.debug("Success on websocket-operation #{data}")
+
           emit_middleware_notification(notification_args)
         end
+
         on.failure do |error|
-          _log.error 'error callback was called, reason: ' + error.to_s
+          _log.error("error callback was called, reason: #{error}")
+
           notification_args.type = :mw_op_failure
           notification_args.detailed_message = error.to_s
           emit_middleware_notification(notification_args)
@@ -349,12 +373,14 @@ module OperationDispatcher
         )
 
         on.success do |data|
-          _log.debug "Success on websocket-operation #{data}"
+          _log.debug("Success on websocket-operation #{data}")
+
           emit_middleware_notification(notification_args)
         end
 
         on.failure do |error|
-          _log.error 'error callback was called, reason: ' + error.to_s
+          _log.error("error callback was called, reason: #{error}")
+
           notification_args.type = :mw_op_failure
           notification_args.detailed_message = error.to_s
           emit_middleware_notification(notification_args)
