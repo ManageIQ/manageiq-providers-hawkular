@@ -36,8 +36,8 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::Refresher do
     expect(@ems_hawkular.middleware_deployments).not_to be_empty
     expect(@ems_hawkular.middleware_datasources).not_to be_empty
     expect(@ems_hawkular.middleware_messagings).not_to be_empty
-    expect(@ems_hawkular.middleware_deployments.first).to have_attributes(:status => 'Enabled')
-    expect(@ems_hawkular.middleware_servers.first.properties).to have_attributes(
+    expect(@ems_hawkular.middleware_deployments.first.status).to eq('Enabled')
+    expect(@ems_hawkular.middleware_servers.first.properties).to include(
       'Availability'            => 'up',
       'Calculated Server State' => 'running'
     )
@@ -51,12 +51,9 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::Refresher do
 
   def assert_specific_datasource(ems, nativeid)
     datasource = ems.middleware_datasources.find_by(:nativeid => nativeid)
-    expect(datasource).to have_attributes(
-      :name     => 'Datasource [ExampleDS]',
-      :nativeid => nativeid
-    )
-    expect(datasource.properties).not_to be_nil
-    expect(datasource.properties).to have_attributes(
+    expect(datasource.name).to eq('Datasource [ExampleDS]')
+    expect(datasource.nativeid).to eq(nativeid)
+    expect(datasource.properties).to include(
       'Driver Name' => 'h2',
       'JNDI Name'   => 'java:jboss/datasources/ExampleDS',
       'Enabled'     => 'true'
@@ -65,12 +62,11 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::Refresher do
 
   def assert_specific_domain
     domain = @ems_hawkular.middleware_domains.find_by(:feed => 'master.Unnamed%20Domain')
-    expect(domain).to have_attributes(
-      :name     => 'Unnamed Domain',
-      :nativeid => 'Local~/host=master',
-    )
+    expect(domain.name).to eq('Unnamed Domain')
+    expect(domain.nativeid).to eq('Local~/host=master')
+
     expect(domain.properties).not_to be_nil
-    expect(domain.properties).to have_attributes(
+    expect(domain.properties).to include(
       'Running Mode'         => 'NORMAL',
       'Host State'           => 'running',
       'Is Domain Controller' => 'true',
@@ -79,11 +75,9 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::Refresher do
 
   def assert_specific_server_group(domain)
     server_group = domain.middleware_server_groups.find_by(:name => 'main-server-group')
-    expect(server_group).to have_attributes(
-      :name     => 'main-server-group',
-      :nativeid => 'Local~/server-group=main-server-group',
-      :profile  => 'full',
-    )
+    expect(server_group.name).to eq('main-server-group')
+    expect(server_group.nativeid).to eq('Local~/server-group=main-server-group')
+    expect(server_group.profile).to eq('full')
     expect(server_group.properties).not_to be_nil
     expect(server_group.middleware_deployments).to be_empty
     expect(server_group.ext_management_system).to eq(@ems_hawkular)
@@ -91,12 +85,10 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::Refresher do
 
   def assert_specific_domain_server
     server = @ems_hawkular.middleware_servers.find_by(:name => 'server-one')
-    expect(server).to have_attributes(
-      :name     => 'server-one',
-      :nativeid => 'Local~/host=master/server=server-one',
-      :product  => 'WildFly Full',
-      :hostname => test_machine_id,
-    )
+    expect(server.name).to eq('server-one')
+    expect(server.nativeid).to eq('Local~/host=master/server=server-one')
+    expect(server.product).to eq('WildFly Full')
+    expect(server.hostname).to eq(test_machine_id)
     expect(server.properties).not_to be_nil
   end
 
