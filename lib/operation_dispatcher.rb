@@ -1,13 +1,11 @@
 module OperationDispatcher
   # server ops
   def shutdown_middleware_server(ems_ref, params = {})
-    timeout = params[:timeout] || 0
-    run_generic_operation(:Shutdown, ems_ref, :restart => false, :timeout => timeout)
+    run_generic_operation(:Shutdown, ems_ref, :restart => false)
   end
 
   def suspend_middleware_server(ems_ref, params = {}, extra_data = {})
-    timeout = params[:timeout] || 0
-    run_generic_operation(:Suspend, ems_ref, {:timeout => timeout}, extra_data)
+    run_generic_operation(:Suspend, ems_ref, {}, extra_data)
   end
 
   def resume_middleware_server(ems_ref, extra_data = {})
@@ -49,8 +47,7 @@ module OperationDispatcher
   end
 
   def stop_middleware_server_group(ems_ref, params = {})
-    timeout = params[:timeout] || 0
-    run_generic_operation('Stop Servers', ems_ref, :timeout => timeout)
+    run_generic_operation('Stop Servers', ems_ref)
   end
 
   def restart_middleware_server_group(ems_ref)
@@ -62,8 +59,7 @@ module OperationDispatcher
   end
 
   def suspend_middleware_server_group(ems_ref, params = {})
-    timeout = params[:timeout] || 0
-    run_generic_operation('Suspend Servers', ems_ref, :timeout => timeout)
+    run_generic_operation('Suspend Servers', ems_ref)
   end
 
   def resume_middleware_server_group(ems_ref)
