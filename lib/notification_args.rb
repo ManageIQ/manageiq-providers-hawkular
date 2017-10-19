@@ -1,4 +1,8 @@
 NotificationArgs = Struct.new(:type, :operation_name, :operation_args, :target_resource, :entity_klass, :detailed_message) do
+  def self.success(*args)
+    new(:mw_op_success, *args)
+  end
+
   def event_type(entity)
     attributes = {
       :entity_type => entity.kind_of?(MiddlewareServer) ? 'MwServer' : 'MwDomain',

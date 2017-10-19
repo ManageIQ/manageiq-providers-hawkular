@@ -87,8 +87,7 @@ module OperationDispatcher
         :datasourceProperties => hash[:datasource]["datasourceProperties"]
       }
 
-      notification_args = NotificationArgs.new(
-        :mw_op_success,
+      notification_args = NotificationArgs.success(
         'Add Datasource',
         datasource_data[:datasourceName],
         ems_ref,
@@ -155,8 +154,7 @@ module OperationDispatcher
         :deployment_name => deployment_name
       }
 
-      notification_args = NotificationArgs.new(
-        :mw_op_success,
+      notification_args = NotificationArgs.success(
         'Disable Deployment',
         deployment_name,
         ems_ref,
@@ -174,8 +172,7 @@ module OperationDispatcher
         :deployment_name => deployment_name
       }
 
-      notification_args = NotificationArgs.new(
-        :mw_op_success,
+      notification_args = NotificationArgs.success(
         'Enable Deployment',
         deployment_name, ems_ref,
         MiddlewareDeployment
@@ -192,8 +189,7 @@ module OperationDispatcher
         :deployment_name => deployment_name
       }
 
-      notification_args = NotificationArgs.new(
-        :mw_op_success,
+      notification_args = NotificationArgs.success(
         'Restart Deployment',
         deployment_name,
         ems_ref,
@@ -217,8 +213,7 @@ module OperationDispatcher
         :resource_path        => ems_ref.to_s
       }
 
-      notification_args = NotificationArgs.new(
-        :mw_op_success,
+      notification_args = NotificationArgs.success(
         'Add JDBC Driver',
         driver_data[:driver_name],
         ems_ref,
@@ -280,8 +275,7 @@ module OperationDispatcher
 
   def run_operation(parameters, operation_name = nil, extra_data = {})
     with_provider_connection do |connection|
-      notification_args = NotificationArgs.new(
-        :mw_op_success,
+      notification_args = NotificationArgs.success(
         extra_data[:original_operation] || parameters[:operationName],
         nil,
         extra_data[:original_resource_path] || parameters[:resourcePath],
