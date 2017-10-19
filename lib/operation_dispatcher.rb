@@ -87,29 +87,15 @@ module OperationDispatcher
         :datasourceProperties => hash[:datasource]["datasourceProperties"]
       }
 
-      connection.operations(true).add_datasource(datasource_data) do |on|
-        notification_args = NotificationArgs.new(
-          :mw_op_success,
-          'Add Datasource',
-          datasource_data[:datasourceName],
-          ems_ref,
-          MiddlewareServer
-        )
+      notification_args = NotificationArgs.new(
+        :mw_op_success,
+        'Add Datasource',
+        datasource_data[:datasourceName],
+        ems_ref,
+        MiddlewareServer
+      )
 
-        on.success do |data|
-          _log.debug("Success on websocket-operation #{data}")
-
-          emit_middleware_notification(notification_args)
-        end
-
-        on.failure do |error|
-          _log.error("error callback was called, reason: #{error}")
-
-          notification_args.type = :mw_op_failure
-          notification_args.detailed_message = error.to_s
-          emit_middleware_notification(notification_args)
-        end
-      end
+      connection.operations(true).add_datasource(datasource_data, &callback_for(notification_args))
     end
   end
 
@@ -122,6 +108,7 @@ module OperationDispatcher
         :binary_content        => hash[:file]["file"].read,
         :resource_path         => ems_ref.to_s
       }
+
       unless hash[:file]['server_groups'].nil?
         # in case of deploying into server group the resource path should point to the domain controller
         deployment_data[:server_groups] = hash[:file]['server_groups']
@@ -131,29 +118,14 @@ module OperationDispatcher
         deployment_data[:resource_path] = host_controller_path.to_s
       end
 
-      connection.operations(true).add_deployment(deployment_data) do |on|
-        notification_args = NotificationArgs.new(
-          :mw_op_success,
-          'Deploy',
-          deployment_data[:destination_file_name],
-          ems_ref,
-          MiddlewareServer
-        )
+      notification_args = NotificationArgs.success(
+        'Deploy',
+        deployment_data[:destination_file_name],
+        ems_ref,
+        MiddlewareServer
+      )
 
-        on.success do |data|
-          _log.debug("Success on websocket-operation #{data}")
-
-          emit_middleware_notification(notification_args)
-        end
-
-        on.failure do |error|
-          _log.error("error callback was called, reason: #{error}")
-
-          notification_args.type = :mw_op_failure
-          notification_args.detailed_message = error.to_s
-          emit_middleware_notification(notification_args)
-        end
-      end
+      connection.operations(true).add_deployment(deployment_data, &callback_for(notification_args))
     end
   end
 
@@ -165,29 +137,14 @@ module OperationDispatcher
         :remove_content  => true
       }
 
-      connection.operations(true).undeploy(deployment_data) do |on|
-        notification_args = NotificationArgs.new(
-          :mw_op_success,
-          'Undeploy',
-          deployment_name,
-          ems_ref,
-          MiddlewareDeployment
-        )
+      notification_args = NotificationArgs.success(
+        'Undeploy',
+        deployment_name,
+        ems_ref,
+        MiddlewareDeployment
+      )
 
-        on.success do |data|
-          _log.debug("Success on websocket-operation #{data}")
-
-          emit_middleware_notification(notification_args)
-        end
-
-        on.failure do |error|
-          _log.error("error callback was called, reason: #{error}")
-
-          notification_args.type = :mw_op_failure
-          notification_args.detailed_message = error.to_s
-          emit_middleware_notification(notification_args)
-        end
-      end
+      connection.operations(true).undeploy(deployment_data, &callback_for(notification_args))
     end
   end
 
@@ -198,29 +155,15 @@ module OperationDispatcher
         :deployment_name => deployment_name
       }
 
-      connection.operations(true).disable_deployment(deployment_data) do |on|
-        notification_args = NotificationArgs.new(
-          :mw_op_success,
-          'Disable Deployment',
-          deployment_name,
-          ems_ref,
-          MiddlewareDeployment
-        )
+      notification_args = NotificationArgs.new(
+        :mw_op_success,
+        'Disable Deployment',
+        deployment_name,
+        ems_ref,
+        MiddlewareDeployment
+      )
 
-        on.success do |data|
-          _log.debug("Success on websocket-operation #{data}")
-
-          emit_middleware_notification(notification_args)
-        end
-
-        on.failure do |error|
-          _log.error("error callback was called, reason: #{error}")
-
-          notification_args.type = :mw_op_failure
-          notification_args.detailed_message = error.to_s
-          emit_middleware_notification(notification_args)
-        end
-      end
+      connection.operations(true).disable_deployment(deployment_data, &callback_for(notification_args))
     end
   end
 
@@ -231,28 +174,14 @@ module OperationDispatcher
         :deployment_name => deployment_name
       }
 
-      connection.operations(true).enable_deployment(deployment_data) do |on|
-        notification_args = NotificationArgs.new(
-          :mw_op_success,
-          'Enable Deployment',
-          deployment_name, ems_ref,
-          MiddlewareDeployment
-        )
+      notification_args = NotificationArgs.new(
+        :mw_op_success,
+        'Enable Deployment',
+        deployment_name, ems_ref,
+        MiddlewareDeployment
+      )
 
-        on.success do |data|
-          _log.debug "Success on websocket-operation #{data}"
-
-          emit_middleware_notification(notification_args)
-        end
-
-        on.failure do |error|
-          _log.error 'error callback was called, reason: ' + error.to_s
-
-          notification_args.type = :mw_op_failure
-          notification_args.detailed_message = error.to_s
-          emit_middleware_notification(notification_args)
-        end
-      end
+      connection.operations(true).enable_deployment(deployment_data, &callback_for(notification_args))
     end
   end
 
@@ -263,28 +192,15 @@ module OperationDispatcher
         :deployment_name => deployment_name
       }
 
-      connection.operations(true).restart_deployment(deployment_data) do |on|
-        notification_args = NotificationArgs.new(
-          :mw_op_success,
-          'Restart Deployment',
-          deployment_name,
-          ems_ref,
-          MiddlewareDeployment
-        )
-        on.success do |data|
-          _log.debug "Success on websocket-operation #{data}"
+      notification_args = NotificationArgs.new(
+        :mw_op_success,
+        'Restart Deployment',
+        deployment_name,
+        ems_ref,
+        MiddlewareDeployment
+      )
 
-          emit_middleware_notification(notification_args)
-        end
-
-        on.failure do |error|
-          _log.error("error callback was called, reason: #{error}")
-
-          notification_args.type = :mw_op_failure
-          notification_args.detailed_message = error.to_s
-          emit_middleware_notification(notification_args)
-        end
-      end
+      connection.operations(true).restart_deployment(deployment_data, &callback_for(notification_args))
     end
   end
 
@@ -301,28 +217,15 @@ module OperationDispatcher
         :resource_path        => ems_ref.to_s
       }
 
-      connection.operations(true).add_jdbc_driver(driver_data) do |on|
-        notification_args = NotificationArgs.new(
-          :mw_op_success,
-          'Add JDBC Driver',
-          driver_data[:driver_name],
-          ems_ref,
-          MiddlewareServer
-        )
-        on.success do |data|
-          _log.debug("Success on websocket-operation #{data}")
+      notification_args = NotificationArgs.new(
+        :mw_op_success,
+        'Add JDBC Driver',
+        driver_data[:driver_name],
+        ems_ref,
+        MiddlewareServer
+      )
 
-          emit_middleware_notification(notification_args)
-        end
-
-        on.failure do |error|
-          _log.error("error callback was called, reason: #{error}")
-
-          notification_args.type = :mw_op_failure
-          notification_args.detailed_message = error.to_s
-          emit_middleware_notification(notification_args)
-        end
-      end
+      connection.operations(true).add_jdbc_driver(driver_data, &callback_for(notification_args))
     end
   end
 
@@ -357,37 +260,39 @@ module OperationDispatcher
     run_operation(parameters, operation_name)
   end
 
+  def callback_for(notification_args)
+    proc do |on|
+      on.success do |data|
+        _log.debug("Success on websocket-operation #{data}")
+
+        emit_middleware_notification(notification_args)
+      end
+
+      on.failure do |error|
+        _log.error("error callback was called, reason: #{error}")
+
+        notification_args.type = :mw_op_failure
+        notification_args.detailed_message = error.to_s
+        emit_middleware_notification(notification_args)
+      end
+    end
+  end
+
   def run_operation(parameters, operation_name = nil, extra_data = {})
     with_provider_connection do |connection|
-      callback = proc do |on|
-        notification_args = NotificationArgs.new(
-          :mw_op_success,
-          extra_data[:original_operation] || parameters[:operationName],
-          nil,
-          extra_data[:original_resource_path] || parameters[:resourcePath],
-          MiddlewareServer
-        )
-
-        on.success do |data|
-          _log.debug("Success on websocket-operation #{data}")
-
-          emit_middleware_notification(notification_args)
-        end
-
-        on.failure do |error|
-          _log.error("error callback was called, reason: #{error}")
-
-          notification_args.type = :mw_op_failure
-          notification_args.detailed_message = error.to_s
-          emit_middleware_notification(notification_args)
-        end
-      end
+      notification_args = NotificationArgs.new(
+        :mw_op_success,
+        extra_data[:original_operation] || parameters[:operationName],
+        nil,
+        extra_data[:original_resource_path] || parameters[:resourcePath],
+        MiddlewareServer
+      )
 
       operation_connection = connection.operations(true)
       if operation_name.nil?
-        operation_connection.invoke_generic_operation(parameters, &callback)
+        operation_connection.invoke_generic_operation(parameters, &callback_for(notification_args))
       else
-        operation_connection.invoke_specific_operation(parameters, operation_name, &callback)
+        operation_connection.invoke_specific_operation(parameters, operation_name, &callback_for(notification_args))
       end
     end
   end
