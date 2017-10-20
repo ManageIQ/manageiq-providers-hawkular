@@ -1,25 +1,21 @@
 module OperationDispatcher
   module DSL
-    def group_operation(name, action_name)
-      define_method("#{name}_middleware_server_group") do |ems_ref|
-        run_generic_operation(action_name.to_sym, ems_ref)
-      end
+    def group_operation(name, *args)
+      generic_operation("#{name}_middleware_server_group", *args)
     end
 
-    def domain_operation(name, action_name, _ = {}, default_extra_data = {})
-      define_method("#{name}_middleware_domain_server") do |ems_ref, extra_data = {}|
-        run_generic_operation(action_name.to_sym, ems_ref, {}, default_extra_data.merge(extra_data))
-      end
+    def domain_operation(name, *args)
+      generic_operation("#{name}_middleware_domain_server", *args)
     end
 
-    def standalone_operation(name, action_name, default_params = {}, default_extra_data = {})
-      define_method("#{name}_middleware_server") do |ems_ref, params = {}, extra_data = {}|
+    def standalone_operation(name, *args)
+      generic_operation("#{name}_middleware_server", *args)
+    end
+
+    def generic_operation(name, action_name, default_params = {}, default_extra_data = {})
+      define_method(name) do |ems_ref, params = {}, extra_data = {}|
         run_generic_operation(action_name.to_sym, ems_ref, default_params.merge(params), default_extra_data.merge(extra_data))
       end
-    end
-
-    def generic_operation(name, action_name)
-      define_method(name) { |ref| run_generic_operation(action_name.to_sym, ref) }
     end
 
     def specific_operation(name, action_name, default_params = {})
