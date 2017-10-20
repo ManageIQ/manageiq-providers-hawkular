@@ -32,6 +32,27 @@ module ManageIQ::Providers
     has_many :middleware_messagings, :foreign_key => :ems_id, :dependent => :destroy
     has_many :middleware_server_groups, :through => :middleware_domains
 
+    standalone_operation :shutdown, 'Shutdown'
+    standalone_operation :suspend, 'Suspend'
+    standalone_operation :resume, 'Resume'
+    standalone_operation :reload, 'Reload'
+    standalone_operation :stop, 'Shutdown', {}, :original_operation => :Stop
+    standalone_operation :restart, 'Shutdown', { :restart => true }, :original_operation => :Restart
+
+    domain_operation :start, 'Start'
+    domain_operation :stop, 'Stop'
+    domain_operation :restart, 'Restart'
+    domain_operation :kill, 'Kill'
+
+    group_operation :start, 'Start Servers'
+    group_operation :stop, 'Stop Servers'
+    group_operation :restart, 'Restart Servers'
+    group_operation :reload, 'Reload Servers'
+    group_operation :suspend, 'Suspend Servers'
+    group_operation :resume, 'Resume Servers'
+
+    generic_operation :create_jdr_report, 'JDR'
+
     attr_accessor :client
 
     def verify_credentials(_auth_type = nil, options = {})

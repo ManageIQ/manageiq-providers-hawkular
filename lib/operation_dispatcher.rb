@@ -1,73 +1,37 @@
 module OperationDispatcher
-  # server ops
-  def shutdown_middleware_server(ems_ref, params = {})
-    run_generic_operation(:Shutdown, ems_ref, :restart => false)
+  module DSL
+    def group_operation(name, action_name)
+      define_method("#{name}_middleware_server_group") do |ems_ref|
+        run_generic_operation(action_name.to_sym, ems_ref)
+      end
+    end
+
+    def domain_operation(name, action_name, _ = {}, default_extra_data = {})
+      define_method("#{name}_middleware_domain_server") do |ems_ref, extra_data = {}|
+        run_generic_operation(action_name.to_sym, ems_ref, {}, default_extra_data.merge(extra_data))
+      end
+    end
+
+    def standalone_operation(name, action_name, default_params = {}, default_extra_data = {})
+      define_method("#{name}_middleware_server") do |ems_ref, params = {}, extra_data = {}|
+        run_generic_operation(action_name.to_sym, ems_ref, default_params.merge(params), default_extra_data.merge(extra_data))
+      end
+    end
+
+    def generic_operation(name, action_name)
+      define_method(name) { |ref| run_generic_operation(action_name.to_sym, ref) }
+    end
+
+    def specific_operation(name, action_name, default_params = {})
+      define_method(name) do |ref, params = {}|
+        params[:resourcePath] = ref.to_s
+        run_operation(default_params.merge(params), action_name)
+      end
+    end
   end
 
-  def suspend_middleware_server(ems_ref, params = {}, extra_data = {})
-    run_generic_operation(:Suspend, ems_ref, {}, extra_data)
-  end
-
-  def resume_middleware_server(ems_ref, extra_data = {})
-    run_generic_operation(:Resume, ems_ref, {}, extra_data)
-  end
-
-  def reload_middleware_server(ems_ref, extra_data = {})
-    run_generic_operation(:Reload, ems_ref, {}, extra_data)
-  end
-
-  def stop_middleware_server(ems_ref)
-    run_generic_operation(:Shutdown, ems_ref, {}, {:original_operation => :Stop})
-  end
-
-  def start_middleware_domain_server(ems_ref, extra_data = {})
-    run_generic_operation(:Start, ems_ref, {}, extra_data)
-  end
-
-  def stop_middleware_domain_server(ems_ref, extra_data = {})
-    run_generic_operation(:Stop, ems_ref, {}, extra_data)
-  end
-
-  def restart_middleware_server(ems_ref)
-    run_generic_operation(:Shutdown, ems_ref, {:restart => true}, {:original_operation => :Restart})
-  end
-
-  # domain server ops
-  def restart_middleware_domain_server(ems_ref, extra_data = {})
-    run_generic_operation(:Restart, ems_ref, {}, extra_data)
-  end
-
-  def kill_middleware_domain_server(ems_ref, extra_data = {})
-    run_generic_operation(:Kill, ems_ref, {}, extra_data)
-  end
-
-  # server group ops
-  def start_middleware_server_group(ems_ref)
-    run_generic_operation('Start Servers', ems_ref)
-  end
-
-  def stop_middleware_server_group(ems_ref, params = {})
-    run_generic_operation('Stop Servers', ems_ref)
-  end
-
-  def restart_middleware_server_group(ems_ref)
-    run_generic_operation('Restart Servers', ems_ref)
-  end
-
-  def reload_middleware_server_group(ems_ref)
-    run_generic_operation('Reload Servers', ems_ref)
-  end
-
-  def suspend_middleware_server_group(ems_ref, params = {})
-    run_generic_operation('Suspend Servers', ems_ref)
-  end
-
-  def resume_middleware_server_group(ems_ref)
-    run_generic_operation('Resume Servers', ems_ref)
-  end
-
-  def create_jdr_report(ems_ref)
-    run_generic_operation(:JDR, ems_ref)
+  def self.included(base)
+    base.extend(DSL)
   end
 
   def add_middleware_datasource(ems_ref, hash)
@@ -224,10 +188,6 @@ module OperationDispatcher
     end
   end
 
-  def remove_middleware_datasource(ems_ref)
-    run_specific_operation('RemoveDatasource', ems_ref)
-  end
-
   private
 
   # Trigger running a (Hawkular) operation on the
@@ -244,15 +204,6 @@ module OperationDispatcher
       :parameters    => parameters
     }
     run_operation(the_operation, nil, extra_data)
-  end
-
-  #
-  # this method send a specific command to the server
-  # with his own JSON. this doesn't use ExecuteOperation.
-  #
-  def run_specific_operation(operation_name, ems_ref, parameters = {})
-    parameters[:resourcePath] = ems_ref.to_s
-    run_operation(parameters, operation_name)
   end
 
   def callback_for(notification_args)
