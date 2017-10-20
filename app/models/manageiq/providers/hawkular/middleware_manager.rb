@@ -1,6 +1,3 @@
-require 'middleware_notification'
-require 'operation_dispatcher'
-
 # TODO: remove the module and just make this:
 # class ManageIQ::Providers::Hawkular::MiddlewareManager < ManageIQ::Providers::MiddlewareManager
 module ManageIQ::Providers
@@ -19,7 +16,7 @@ module ManageIQ::Providers
     require_nested :Refresher
 
     include AuthenticationMixin
-    include OperationDispatcher
+    include Inventory::ServerOperations
     include ::Hawkular::ClientUtils
 
     DEFAULT_PORT = 80
