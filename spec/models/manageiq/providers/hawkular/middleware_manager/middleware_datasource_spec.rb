@@ -3,7 +3,6 @@ require_relative 'hawkular_helper'
 # VCR Cassettes: Hawkular Services 0.0.13.Final-SNAPSHOT (commit 3cef2062513f4d949aa21a90db51f9cd105cf329)
 
 describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareDatasource do
-
   let(:ems_hawkular) do
     _guid, _server, zone = EvmSpecHelper.create_guid_miq_server_zone
     auth = AuthToken.new(:name     => "test",
@@ -32,8 +31,8 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareDatasource 
     FactoryGirl.create(:hawkular_middleware_datasource,
                        :name                  => 'ExampleDS',
                        :ems_ref               => '/t;hawkular'\
-                                                 "/f;#{the_feed_id}/r;Local~~"\
-                                                 '/r;Local~%2Fsubsystem%3Ddatasources%2Fdata-source%3DExampleDS',
+                                                 "/f;#{the_feed_id}/r;Local%20DMR~~"\
+                                                 '/r;Local%20DMR~%2Fsubsystem%3Ddatasources%2Fdata-source%3DExampleDS',
                        :ext_management_system => ems_hawkular,
                        :middleware_server     => eap,
                        :properties            => {

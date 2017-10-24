@@ -1,3 +1,5 @@
+require_relative 'hawkular_helper'
+
 describe ManageIQ::Providers::Hawkular::MiddlewareManager::Refresher do
   before do
     allow(MiqServer).to receive(:my_zone).and_return("default")
@@ -88,15 +90,17 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::Refresher do
     expect(server.name).to eq('server-one')
     expect(server.nativeid).to eq('Local~/host=master/server=server-one')
     expect(server.product).to eq('WildFly Full')
-    expect(server.hostname).to eq(test_machine_id)
+    expect(server.hostname).to eq(the_domain_feed_id)
     expect(server.properties).not_to be_nil
   end
 
   it 'will perform a full refresh on 127.0.0.1 even though the os type is not there yet' do
     # using different cassette that represents the hawkular inventory without the operating system resource type
+    # TODO: Make this work with live tests
     VCR.use_cassette(described_class.name.underscore.to_s + '_without_os',
                      :allow_unused_http_interactions => true,
-                     :decode_compressed_response     => true) do # , :record => :new_episodes) do
+                     :decode_compressed_response     => true,
+                     :record                         => :none) do
       EmsRefresh.refresh(@ems_hawkular2)
     end
 

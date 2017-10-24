@@ -1,0 +1,8 @@
+FROM hawkular/wildfly-hawkular-javaagent:latest
+
+USER root
+RUN yum -y install patch
+
+USER jboss
+COPY hawkular-javaagent-config.diff /tmp/
+RUN patch /opt/jboss/wildfly/standalone/configuration/hawkular-javaagent-config.yaml /tmp/hawkular-javaagent-config.diff

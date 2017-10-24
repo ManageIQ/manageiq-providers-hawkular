@@ -1,0 +1,13 @@
+--- hawkular-javaagent-config.yaml	2017-10-13 13:01:26.000000000 -0500
++++ hawkular-javaagent-modified-config.yaml	2017-10-24 10:54:39.445779608 -0500
+@@ -403,8 +403,8 @@
+     path:         "/statistics=pool"
+     attribute:    MaxWaitCount
+   - name: Max Wait Time
+-    interval:     10
+-    time-units:   minutes
++    interval:     20
++    time-units:   seconds
+     path:         "/statistics=pool"
+     attribute:    MaxWaitTime
+   - name: Timed Out
