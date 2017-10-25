@@ -91,10 +91,14 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::AlertManager do
       miq_alert_condition[:conditions][:options][:value_mw_garbage_collector] = 100
       MW_WEB_SESSIONS.each do |condition|
         miq_alert_condition[:conditions][:eval_method] = condition
+        definition = MiddlewareServer.live_metrics_config['middleware_server']['supported_metrics_by_column'][condition]
+        expect(definition).not_to be_nil
         expect(subject).to receive(:generate_mw_generic_threshold_conditions).with(
-          condition,
-          :mw_operator                => "<",
-          :value_mw_garbage_collector => 100
+          {
+            :mw_operator                => "<",
+            :value_mw_garbage_collector => 100
+          },
+          definition
         )
         subject.send(:convert_to_group_conditions, miq_alert_condition)
       end
@@ -113,10 +117,14 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::AlertManager do
       miq_alert_condition[:conditions][:options][:value_mw_garbage_collector] = 100
       MW_DATASOURCE.each do |condition|
         miq_alert_condition[:conditions][:eval_method] = condition
+        definition = MiddlewareDatasource.live_metrics_config['middleware_datasource']['supported_metrics_by_column'][condition]
+        expect(definition).not_to be_nil
         expect(subject).to receive(:generate_mw_generic_threshold_conditions).with(
-          condition,
-          :mw_operator                => "<",
-          :value_mw_garbage_collector => 100
+          {
+            :mw_operator                => "<",
+            :value_mw_garbage_collector => 100
+          },
+          definition
         )
         subject.send(:convert_to_group_conditions, miq_alert_condition)
       end
@@ -133,15 +141,18 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::AlertManager do
         mw_ms_topic_non_durable_subscription_count
         mw_ms_topic_subscription_count
       ).freeze
-
       miq_alert_condition[:conditions][:options][:mw_operator] = "<"
       miq_alert_condition[:conditions][:options][:value_mw_garbage_collector] = 100
       MW_MESSAGING.each do |condition|
         miq_alert_condition[:conditions][:eval_method] = condition
+        definition = MiddlewareMessaging.live_metrics_config['middleware_messaging_jms_topic']['supported_metrics_by_column'][condition]
+        expect(definition).not_to be_nil
         expect(subject).to receive(:generate_mw_generic_threshold_conditions).with(
-          condition,
-          :mw_operator                => "<",
-          :value_mw_garbage_collector => 100
+          {
+            :mw_operator                => "<",
+            :value_mw_garbage_collector => 100
+          },
+          definition
         )
         subject.send(:convert_to_group_conditions, miq_alert_condition)
       end
@@ -156,15 +167,18 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::AlertManager do
         mw_tx_resource_rollbacks
         mw_tx_aborted
       ).freeze
-
       miq_alert_condition[:conditions][:options][:mw_operator] = "<"
       miq_alert_condition[:conditions][:options][:value_mw_garbage_collector] = 100
       MW_TRANSACTIONS.each do |condition|
         miq_alert_condition[:conditions][:eval_method] = condition
+        definition = MiddlewareServer.live_metrics_config['middleware_server']['supported_metrics_by_column'][condition]
+        expect(definition).not_to be_nil
         expect(subject).to receive(:generate_mw_generic_threshold_conditions).with(
-          condition,
-          :mw_operator                => "<",
-          :value_mw_garbage_collector => 100
+          {
+            :mw_operator                => "<",
+            :value_mw_garbage_collector => 100
+          },
+          definition
         )
         subject.send(:convert_to_group_conditions, miq_alert_condition)
       end
