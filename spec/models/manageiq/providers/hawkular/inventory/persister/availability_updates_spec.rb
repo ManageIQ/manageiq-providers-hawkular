@@ -105,4 +105,64 @@ describe ::ManageIQ::Providers::Hawkular::Inventory::Persister::AvailabilityUpda
       expect(ems_hawkular.middleware_deployments.count).to eq(2)
     end
   end
+
+  describe '#save_domains' do
+    let!(:db_domain1) { ems_hawkular.middleware_domains.create(:ems_ref => 'domain1', :feed => 'f1') }
+    let!(:db_domain2) { ems_hawkular.middleware_domains.create(:ems_ref => 'domain2', :feed => 'f1', :properties => { 'Availability' => 'unknown' }) }
+
+    it 'must update status of domains with no properties in database' do
+      # Set-up
+      updated_domain = persister.middleware_domains.build(:ems_ref => 'domain1', :properties => { 'Availability' => 'up' })
+      persister.middleware_domains << updated_domain
+
+      # Try
+      described_class.save_domains(ems_hawkular, persister.middleware_domains)
+
+      # Verify
+      db_domain1.reload
+      db_domain2.reload
+      expect(db_domain1.properties).to eq('Availability' => 'up')
+      expect(db_domain2.properties).to eq('Availability' => 'unknown') # Check the other one wasn't updated
+    end
+
+    it 'must update only status related fields' do
+      # Set-up
+      db_domain1.properties = { 'Some other data' => 'value' }
+      db_domain1.save!
+
+      updated_domain = persister.middleware_domains.build(
+        :ems_ref    => 'domain1',
+        :properties => { 'Availability' => 'up' }
+      )
+      persister.middleware_domains << updated_domain
+
+      # Try
+      described_class.save_domains(ems_hawkular, persister.middleware_domains)
+
+      # Verify
+      db_domain1.reload
+      expect(db_domain1.properties).to eq(
+        'Availability'    => 'up',
+        'Some other data' => 'value'
+      )
+    end
+
+    it 'must ignore domains not found in database' do
+      # Set-up
+      updated_domain = persister.middleware_domains.build(:ems_ref => 'domain7', :properties => { 'Server State' => 'new status' })
+      persister.middleware_domains << updated_domain
+
+      # Try
+      described_class.save_domains(ems_hawkular, persister.middleware_domains)
+
+      # Verify
+      db_domain1.reload
+      db_domain2.reload
+      expect(db_domain1.properties).to be_blank
+      expect(db_domain2.properties).to eq('Availability' => 'unknown')
+
+      ems_hawkular.middleware_domains.reload
+      expect(ems_hawkular.middleware_domains.count).to eq(2)
+    end
+  end
 end

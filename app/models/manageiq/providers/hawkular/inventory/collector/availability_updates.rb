@@ -7,5 +7,9 @@ module ManageIQ::Providers
     def server_updates
       @target.select { |item| item.association == :middleware_servers }
     end
+
+    def domain_updates
+      @target.select { |item| item.association == :middleware_domains }
+    end
   end
 end
