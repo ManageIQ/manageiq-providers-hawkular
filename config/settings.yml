@@ -10,12 +10,16 @@
           - hawkular_datasource_remove.error
           - hawkular_deployment.error
           - hawkular_deployment_remove.error
+          - hawkular_jdbc.error
+          - hawkular_jdbc_remove.error
           - hawkular_event.critical
           :detail:
           - hawkular_datasource.ok
           - hawkular_datasource_remove.ok
           - hawkular_deployment.ok
           - hawkular_deployment_remove.ok
+          - hawkular_jdbc.ok
+          - hawkular_jdbc_remove.ok
           - hawkular_event
         :power:
           :critical:
