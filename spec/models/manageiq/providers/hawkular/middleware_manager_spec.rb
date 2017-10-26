@@ -105,7 +105,9 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager do
           end
 
           ems.public_send("#{operation}_middleware_server", mw_server.ems_ref)
-          MiqQueue.last.deliver
+          queue = MiqQueue.last
+          expect(queue).not_to be_nil
+          queue.deliver
 
           op_name = operation.capitalize
           notification_expectations(mw_server, op_name.to_sym, 'mw_op_success')
@@ -118,7 +120,9 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager do
           end
 
           ems.public_send("#{operation}_middleware_server", mw_server.ems_ref)
-          MiqQueue.last.deliver
+          queue = MiqQueue.last
+          expect(queue).not_to be_nil
+          queue.deliver
 
           op_name = operation.capitalize
           notification_expectations(mw_server, op_name.to_sym, 'mw_op_failure')
@@ -136,8 +140,11 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager do
 
           ems.public_send("#{operation}_middleware_domain_server",
                           mw_domain_server.ems_ref.sub(/%2Fserver%3D/, '%2Fserver-config%3D'),
+                          {},
                           :original_resource_path => mw_domain_server.ems_ref)
-          MiqQueue.last.deliver
+          queue = MiqQueue.last
+          expect(queue).not_to be_nil
+          queue.deliver
 
           op_name = operation.capitalize
           notification_expectations(mw_domain_server, op_name.to_sym, 'mw_op_success')
@@ -151,8 +158,12 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager do
 
           ems.public_send("#{operation}_middleware_domain_server",
                           mw_domain_server.ems_ref.sub(/%2Fserver%3D/, '%2Fserver-config%3D'),
+                          {},
                           :original_resource_path => mw_domain_server.ems_ref)
-          MiqQueue.last.deliver
+
+          queue = MiqQueue.last
+          expect(queue).not_to be_nil
+          queue.deliver
 
           op_name = operation.capitalize
           notification_expectations(mw_domain_server, op_name.to_sym, 'mw_op_failure')
