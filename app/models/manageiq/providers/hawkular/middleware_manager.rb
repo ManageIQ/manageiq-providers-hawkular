@@ -48,8 +48,6 @@ module ManageIQ::Providers
     group_operation :suspend, 'Suspend Servers'
     group_operation :resume, 'Resume Servers'
 
-    generic_operation :create_jdr_report, 'JDR'
-
     attr_accessor :client
 
     def verify_credentials(_auth_type = nil, options = {})
