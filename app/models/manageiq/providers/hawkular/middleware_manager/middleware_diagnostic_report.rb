@@ -1,15 +1,13 @@
 require 'timeout'
 
 module ManageIQ::Providers
-  class Hawkular::MiddlewareManager::MiddlewareDiagnosticReport < ApplicationRecord
-    self.table_name = 'middleware_diagnostic_reports'
+  class Hawkular::MiddlewareManager::MiddlewareDiagnosticReport < MiddlewareDiagnosticReport
 
     STATUS_QUEUED = 'Queued'.freeze
     STATUS_RUNNING = 'Running'.freeze
     STATUS_ERROR = 'Error'.freeze
     STATUS_READY = 'Ready'.freeze
 
-    belongs_to :middleware_server
     has_one :binary_blob, :as => :resource, :dependent => :destroy
 
     validates :middleware_server_id, :requesting_user, :presence => true
