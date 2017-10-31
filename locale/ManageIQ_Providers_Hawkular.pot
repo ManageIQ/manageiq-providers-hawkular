@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ManageIQ_Providers_Hawkular 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-21 09:44+0200\n"
-"PO-Revision-Date: 2017-04-21 09:44+0200\n"
+"POT-Creation-Date: 2017-10-31 15:41+0100\n"
+"PO-Revision-Date: 2017-10-31 15:41+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -18,6 +18,26 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: ../app/models/manageiq/providers/hawkular/inventory/parser/middleware_manager.rb:282
+#: ../app/models/manageiq/providers/hawkular/inventory/server_operations.rb:57
+msgid "%{operation} operation for %{server} %{status}"
+msgstr ""
+
+#: ../app/models/manageiq/providers/hawkular/middleware_manager/middleware_diagnostic_report.rb:95
+msgid "Generation of JDR report was requested by a user."
+msgstr ""
+
+#: ../app/models/manageiq/providers/hawkular/middleware_manager/middleware_diagnostic_report.rb:59
+msgid "Reached generation timeout."
+msgstr ""
+
+#: ../app/models/manageiq/providers/hawkular/inventory/server_operations.rb:54
+msgid "failed"
+msgstr ""
+
+#: ../app/models/manageiq/providers/hawkular/inventory/parser/middleware_manager.rb:341
 msgid "not yet available"
+msgstr ""
+
+#: ../app/models/manageiq/providers/hawkular/inventory/server_operations.rb:54
+msgid "succeeded"
 msgstr ""

@@ -17,5 +17,20 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "\n"
 
+msgid "%{operation} operation for %{server} %{status}"
+msgstr ""
+
+msgid "Generation of JDR report was requested by a user."
+msgstr ""
+
+msgid "Reached generation timeout."
+msgstr ""
+
+msgid "failed"
+msgstr ""
+
 msgid "not yet available"
+msgstr ""
+
+msgid "succeeded"
 msgstr ""
