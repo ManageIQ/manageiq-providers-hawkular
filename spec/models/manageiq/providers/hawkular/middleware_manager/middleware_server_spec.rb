@@ -37,7 +37,7 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager::MiddlewareServer do
       "WildFly Memory Metrics~NonHeap Used"                               => "mw_non_heap_used",
       "WildFly Memory Metrics~NonHeap Committed"                          => "mw_non_heap_committed",
       "WildFly Memory Metrics~Accumulated GC Duration"                    => "mw_accumulated_gc_duration",
-      "WildFly Aggregated Web Metrics~Aggregated Servlet Request Time"    => "mw_agregated_servlet_time",
+      "WildFly Aggregated Web Metrics~Aggregated Servlet Request Time"    => "mw_aggregated_servlet_time",
       "WildFly Aggregated Web Metrics~Aggregated Servlet Request Count"   => "mw_aggregated_servlet_request_count",
       "WildFly Aggregated Web Metrics~Aggregated Expired Web Sessions"    => "mw_aggregated_expired_web_sessions",
       "WildFly Aggregated Web Metrics~Aggregated Max Active Web Sessions" => "mw_aggregated_max_active_web_sessions",
