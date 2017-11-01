@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Unreleased as of Sprint 72 ending 2017-10-30
+
+### Added
+- Migrate MiddlewareServer to MiddlewareServerWildfly and MiddlewareServerEap [(#60)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/60)
+
+### Fixed
+- Explicitly pick from the connection pool for notifications [(#76)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/76)
+- Use base class MiddlewareDiagnosticReport so we can fully use report to display data [(#72)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/72)
+- Add status domain [(#67)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/67)
+
 ## Unreleased as of Sprint 71 ending 2017-10-16
 
 ### Added
