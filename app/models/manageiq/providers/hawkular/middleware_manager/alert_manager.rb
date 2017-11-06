@@ -137,15 +137,23 @@ module ManageIQ::Providers
       case eval_method
       when "mw_accumulated_gc_duration"       then generate_mw_gc_condition(eval_method, options)
       when "mw_heap_used", "mw_non_heap_used" then generate_mw_jvm_conditions(eval_method, options)
+      when *MW_DATASOURCE then generate_mw_generic_threshold_conditions(options, mw_datasource_metrics_by_column[eval_method])
+      when *MW_MESSAGING then generate_mw_generic_threshold_conditions(options, mw_messaging_topic_metrics_by_column[eval_method])
       when *MW_WEB_SESSIONS,
-           *MW_DATASOURCE,
-           *MW_MESSAGING,
-           *MW_TRANSACTIONS then generate_mw_generic_threshold_conditions(eval_method, options)
+           *MW_TRANSACTIONS then generate_mw_generic_threshold_conditions(options, mw_server_metrics_by_column[eval_method])
       end
     end
 
     def mw_server_metrics_by_column
       MiddlewareServer.live_metrics_config['middleware_server']['supported_metrics_by_column']
+    end
+
+    def mw_datasource_metrics_by_column
+      MiddlewareDatasource.live_metrics_config['middleware_datasource']['supported_metrics_by_column']
+    end
+
+    def mw_messaging_topic_metrics_by_column
+      MiddlewareMessaging.live_metrics_config['middleware_messaging_jms_topic']['supported_metrics_by_column']
     end
 
     def generate_mw_gc_condition(eval_method, options)
@@ -190,11 +198,11 @@ module ManageIQ::Providers
       c
     end
 
-    def generate_mw_generic_threshold_conditions(eval_method, options)
+    def generate_mw_generic_threshold_conditions(options, data_id)
       ::Hawkular::Alerts::Trigger::GroupConditionsInfo.new(
         [
           generate_mw_threshold_condition(
-            mw_server_metrics_by_column[eval_method],
+            data_id,
             convert_operator(options[:mw_operator]),
             options[:value_mw_threshold].to_i
           )
