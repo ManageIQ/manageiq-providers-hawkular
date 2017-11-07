@@ -99,6 +99,11 @@ module ManageIQ::Providers
         :username => username,
         :password => password
       }
+
+      if cert_store.kind_of?(String)
+        cert_store = Endpoint.new(:certificate_authority => cert_store).ssl_cert_store
+      end
+
       options = {
         :tenant         => 'hawkular',
         :verify_ssl     => verify_ssl_mode(security_protocol),
