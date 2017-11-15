@@ -17,5 +17,9 @@ module ManageIQ::Providers
         :requesting_user => requesting_user
       )
     end
+
+    def self.supported_models
+      @supported_models ||= ['middleware_server']
+    end
   end
 end
