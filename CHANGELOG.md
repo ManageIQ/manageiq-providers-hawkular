@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Unreleased as of Sprint 73 ending 2017-11-13
+
+### Fixed
+- Fix problem getting live metrics when trigger is created with Datasource and Mesagging types [(#88)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/88)
+
 ## Unreleased as of Sprint 72 ending 2017-10-30
 
 ### Added
