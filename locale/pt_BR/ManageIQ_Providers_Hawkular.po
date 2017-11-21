@@ -1,39 +1,39 @@
-# Laurence Ganseman <laurence.ganseman@stoquart.com>, 2017. #zanata
+# renata <translator01_redhat@roundtableinc.net>, 2017. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: ManageIQ_Providers_Hawkular 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-10-31 15:41+0100\n"
-"PO-Revision-Date: 2017-11-09 04:41-0500\n"
-"Last-Translator: Laurence Ganseman <laurence.ganseman@stoquart.com>\n"
-"Language-Team: French\n"
+"PO-Revision-Date: 2017-11-08 12:39-0500\n"
+"Last-Translator: renata <translator01_redhat@roundtableinc.net>\n"
+"Language-Team: Portuguese (Brazil)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"Language: pt-BR\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
 "X-Generator: Zanata 3.9.6\n"
 
 #: ../app/models/manageiq/providers/hawkular/inventory/server_operations.rb:57
 msgid "%{operation} operation for %{server} %{status}"
-msgstr "Opération %{operation} pour %{server} %{status}"
+msgstr "Operação %{operation} para o %{server} %{status}"
 
 #: ../app/models/manageiq/providers/hawkular/middleware_manager/middleware_diagnostic_report.rb:95
 msgid "Generation of JDR report was requested by a user."
-msgstr "Génération du rapport JDR demandée par un utilisateur."
+msgstr "A geração do relatório JDR foi solicitada por um usuário."
 
 #: ../app/models/manageiq/providers/hawkular/middleware_manager/middleware_diagnostic_report.rb:59
 msgid "Reached generation timeout."
-msgstr "Délai d'attente atteint."
+msgstr "Tempo limite de geração atingido."
 
 #: ../app/models/manageiq/providers/hawkular/inventory/server_operations.rb:54
 msgid "failed"
-msgstr "échoué"
+msgstr "falhou"
 
 #: ../app/models/manageiq/providers/hawkular/inventory/parser/middleware_manager.rb:341
 msgid "not yet available"
-msgstr "non disponible pour l'instant"
+msgstr "não disponível ainda"
 
 #: ../app/models/manageiq/providers/hawkular/inventory/server_operations.rb:54
 msgid "succeeded"
-msgstr "réussi"
+msgstr "foi bem-sucedido"
