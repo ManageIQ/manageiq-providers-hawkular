@@ -48,6 +48,8 @@ module ManageIQ::Providers
     group_operation :suspend, 'Suspend Servers'
     group_operation :resume, 'Resume Servers'
 
+    specific_operation :remove_middleware_datasource, 'RemoveDatasource'
+
     attr_accessor :client
 
     def verify_credentials(_auth_type = nil, options = {})
