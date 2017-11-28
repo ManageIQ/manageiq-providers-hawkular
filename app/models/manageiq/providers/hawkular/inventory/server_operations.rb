@@ -24,10 +24,10 @@ module ManageIQ
               end
             end
 
-            def specific_operation(name, action_name, default_params = {})
+            def specific_operation(name, action_name, default_params = {}, extra_data = {})
               define_method(name) do |ref, params = {}|
                 params[:resourcePath] = ref.to_s
-                run_operation(default_params.merge(params), action_name)
+                run_operation(default_params.merge(params), action_name, extra_data)
               end
             end
           end
@@ -253,10 +253,10 @@ module ManageIQ
           def run_operation(parameters, operation_name = nil, extra_data = {})
             with_provider_connection do |connection|
               notification_args = NotificationArgs.success(
-                extra_data[:original_operation] || parameters[:operationName],
+                extra_data[:original_operation] || parameters[:operationName] || operation_name.try(:titleize),
                 nil,
                 extra_data[:original_resource_path] || parameters[:resourcePath],
-                MiddlewareServer
+                extra_data[:original_klass] || MiddlewareServer
               )
 
               operation_connection = connection.operations(true)
