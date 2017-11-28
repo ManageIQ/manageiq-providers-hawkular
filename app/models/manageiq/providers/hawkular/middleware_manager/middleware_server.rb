@@ -18,6 +18,14 @@ module ManageIQ::Providers
       )
     end
 
+    def live_metrics_name
+      'middleware_server'
+    end
+
+    def chart_report_name
+      'middleware_server'
+    end
+
     def self.supported_models
       @supported_models ||= ['middleware_server']
     end
