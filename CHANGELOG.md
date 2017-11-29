@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Unreleased as of Sprint 74 ending 2017-11-27
+
+### Fixed
+- Re-add remove datasource operation [(#111)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/111)
+- Middleware server reports fixed after introducing STI on MiddlewareServer [(#106)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/106)
+
 ## Unreleased as of Sprint 73 ending 2017-11-13
 
 ### Fixed
