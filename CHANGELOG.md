@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Gaprindashvili Beta2
+
+### Fixed
+- Middleware server reports fixed after introducing STI on MiddlewareServer [(#106)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/106)
+- Re-add remove datasource operation [(#111)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/111)
+
 ## Gaprindashvili Beta1
 
 ### Added
