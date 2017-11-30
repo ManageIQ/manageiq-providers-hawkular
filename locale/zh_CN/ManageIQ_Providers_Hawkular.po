@@ -1,36 +1,39 @@
-# Chinese translations for ManageIQ_Providers_Hawkular package.
-# Copyright (C) 2017 THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the ManageIQ_Providers_Hawkular package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
-#
+# Joy Cai <joy.sh@linguitronics.com>, 2017. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: ManageIQ_Providers_Hawkular 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2017-04-21 09:44+0200\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Chinese\n"
-"Language: zh_CN\n"
+"POT-Creation-Date: 2017-10-31 15:41+0100\n"
+"PO-Revision-Date: 2017-11-10 03:08-0500\n"
+"Last-Translator: Joy Cai <joy.sh@linguitronics.com>\n"
+"Language-Team: Chinese (Simplified, China)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"\n"
+"Language: zh-Hans-CN\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"X-Generator: Zanata 3.9.6\n"
 
+#: ../app/models/manageiq/providers/hawkular/inventory/server_operations.rb:57
 msgid "%{operation} operation for %{server} %{status}"
-msgstr ""
+msgstr "对 %{server} %{status} 的 %{operation} 操作"
 
+#: ../app/models/manageiq/providers/hawkular/middleware_manager/middleware_diagnostic_report.rb:95
 msgid "Generation of JDR report was requested by a user."
-msgstr ""
+msgstr "用户请求了生成 JDR 报告。"
 
+#: ../app/models/manageiq/providers/hawkular/middleware_manager/middleware_diagnostic_report.rb:59
 msgid "Reached generation timeout."
-msgstr ""
+msgstr "生成操作超时。"
 
+#: ../app/models/manageiq/providers/hawkular/inventory/server_operations.rb:54
 msgid "failed"
-msgstr ""
+msgstr "失败 "
 
+#: ../app/models/manageiq/providers/hawkular/inventory/parser/middleware_manager.rb:341
 msgid "not yet available"
-msgstr ""
+msgstr "尚不可用"
 
+#: ../app/models/manageiq/providers/hawkular/inventory/server_operations.rb:54
 msgid "succeeded"
-msgstr ""
+msgstr "成功"
