@@ -68,6 +68,14 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager do
         :ems_ref               => '/t;hawkular/f;master.Unnamed%20Domain/r;Local~~/r;Local~%2Fhost%3Dmaster'
       )
     end
+    let(:mw_datasource) do
+      FactoryGirl.create(
+        :hawkular_middleware_datasource,
+        :ext_management_system => ems,
+        :server_id             => mw_server.id,
+        :ems_ref               => '/t;hawkular/f;master.Unnamed%20Domain/r;Local~~/r;Local~%2fsubsystem%3ddatasources%2fdata-source%3dExampleDS'
+      )
+    end
 
     before(:all) do
       MiqServer.seed
@@ -195,6 +203,27 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager do
 
         notification_expectations(mw_domain, :Stop, 'mw_op_failure')
         timeline_domain_expectations('Failed')
+      end
+    end
+
+    describe 'remove datasource operation' do
+      it "should create a user notification and timeline event on success" do
+        allow_any_instance_of(::Hawkular::Operations::Client).to receive(:invoke_specific_operation) do |_, &callback|
+          callback.perform(:success, nil)
+        end
+        ems.public_send("remove_middleware_datasource", mw_datasource.ems_ref)
+
+        notification_expectations(mw_server, "Remove Datasource", 'mw_op_success')
+      end
+
+      it "should create a user notification and timeline event on failure" do
+        allow_any_instance_of(::Hawkular::Operations::Client).to receive(:invoke_specific_operation) do |_, &callback|
+          callback.perform(:failure, 'Error')
+        end
+
+        ems.public_send("remove_middleware_datasource", mw_datasource.ems_ref)
+
+        notification_expectations(mw_server, "Remove Datasource", 'mw_op_failure')
       end
     end
   end
