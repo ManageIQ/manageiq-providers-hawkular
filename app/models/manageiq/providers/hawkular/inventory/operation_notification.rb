@@ -12,7 +12,7 @@ module ManageIQ
 
           def emit
             ActiveRecord::Base.connection_pool.with_connection do
-              mw_entity = args.entity_klass.find_by(:id => args.target_resource) unless args.entity_klass == MiddlewareServer
+              mw_entity = args.entity_klass.find_by(:ems_ref => args.target_resource) unless args.entity_klass == MiddlewareServer
               mw_server = if mw_entity.nil?
                             MiddlewareServer.find_by(:ems_ref => args.target_resource) ||
                               MiddlewareDomain.find_by(:ems_ref => args.target_resource)
