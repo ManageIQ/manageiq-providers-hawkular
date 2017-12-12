@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Gaprindashvili RC
+
+### Added
+- Add translations [(#108)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/108)
+
+### Fixed
+- Fix RemoveDatasource operation notification [(#112)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/112)
+
 ## Gaprindashvili Beta2
 
 ### Fixed
