@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 
 
+## Unreleased as of Sprint 75 ending 2017-12-11
+
+### Fixed
+- Fixing live metrics for MiddlewareServer[EAP|Wildfly] instances [(#114)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/114)
+- Fix RemoveDatasource operation notification [(#112)](https://github.com/ManageIQ/manageiq-providers-hawkular/pull/112)
+
 ## Unreleased as of Sprint 74 ending 2017-11-27
 
 ### Fixed
