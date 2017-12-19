@@ -14,12 +14,16 @@ class ManageIQ::Providers::Hawkular::MiddlewareManager::EventCatcher::Runner <
       'hawkular_datasource_remove.error',
       'hawkular_deployment.error',
       'hawkular_deployment_remove.error',
+      'hawkular_jdbc.error',
+      'hawkular_jdbc_remove.error',
       'hawkular_event.critical', # general purpose critical/summary level event
       # detail
       'hawkular_datasource.ok',
       'hawkular_datasource_remove.ok',
       'hawkular_deployment.ok',
       'hawkular_deployment_remove.ok',
+      'hawkular_jdbc.ok',
+      'hawkular_jdbc_remove.ok',
       'hawkular_event', # general purpose detail level event
       # filtered (not shown in timeline)
       'hawkular_alert'
