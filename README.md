@@ -1,5 +1,9 @@
 # manageiq-providers-hawkular
 
+This repo is deprecated as of December 18 2017.
+
+The development of the Hawkular/Middleware ManageIQ provider is stopped.
+
 [![Gem Version](https://badge.fury.io/rb/manageiq-providers-hawkular.svg)](http://badge.fury.io/rb/manageiq-providers-hawkular)
 [![Build Status](https://travis-ci.org/ManageIQ/manageiq-providers-hawkular.svg)](https://travis-ci.org/ManageIQ/manageiq-providers-hawkular)
 [![Code Climate](https://codeclimate.com/github/ManageIQ/manageiq-providers-hawkular.svg)](https://codeclimate.com/github/ManageIQ/manageiq-providers-hawkular)
