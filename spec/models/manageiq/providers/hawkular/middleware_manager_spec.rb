@@ -89,25 +89,9 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager do
       expect(notification.options[:mw_server]).to eq("#{mw_server.name} (#{mw_server.feed})")
     end
 
-    def timeline_server_expectations(mw_item, op_name, status)
-      event = EmsEvent.last
-      expect(event.ems_id).to eq(ems.id)
-      expect(event.event_type).to eq("MwServer.#{op_name}.#{status}")
-      expect(event.middleware_server_id).to eq(mw_item.id)
-      expect(event.middleware_server_name).to eq(mw_item.name)
-    end
-
-    def timeline_domain_expectations(status)
-      event = EmsEvent.last
-      expect(event.ems_id).to eq(ems.id)
-      expect(event.event_type).to eq("MwDomain.Stop.#{status}")
-      expect(event.middleware_domain_id).to eq(mw_domain.id)
-      expect(event.middleware_domain_name).to eq(mw_domain.name)
-    end
-
     %w(shutdown suspend resume reload restart stop).each do |operation|
       describe operation do
-        it "should create a user notification and timeline event on success" do
+        it "should create a user notification on success" do
           allow_any_instance_of(::Hawkular::Operations::Client).to receive(:invoke_generic_operation) do |_, &callback|
             callback.perform(:success, nil)
           end
@@ -119,10 +103,9 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager do
 
           op_name = operation.capitalize
           notification_expectations(mw_server, op_name.to_sym, 'mw_op_success')
-          timeline_server_expectations(mw_server, op_name, "Success")
         end
 
-        it "should create a user notification and timeline event on failure" do
+        it "should create a user notification on failure" do
           allow_any_instance_of(::Hawkular::Operations::Client).to receive(:invoke_generic_operation) do |_, &callback|
             callback.perform(:failure, 'Error')
           end
@@ -134,14 +117,13 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager do
 
           op_name = operation.capitalize
           notification_expectations(mw_server, op_name.to_sym, 'mw_op_failure')
-          timeline_server_expectations(mw_server, op_name, "Failed")
         end
       end
     end
 
     %w(start restart stop kill).each do |operation|
       describe "domain server specific '#{operation}' operation:" do
-        it "should create a user notification and timeline event on success" do
+        it "should create a user notification on success" do
           allow_any_instance_of(::Hawkular::Operations::Client).to receive(:invoke_generic_operation) do |_, &callback|
             callback.perform(:success, nil)
           end
@@ -156,10 +138,9 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager do
 
           op_name = operation.capitalize
           notification_expectations(mw_domain_server, op_name.to_sym, 'mw_op_success')
-          timeline_server_expectations(mw_domain_server, op_name, "Success")
         end
 
-        it "should create a user notification and timeline event on failure" do
+        it "should create a user notification on failure" do
           allow_any_instance_of(::Hawkular::Operations::Client).to receive(:invoke_generic_operation) do |_, &callback|
             callback.perform(:failure, 'Error')
           end
@@ -175,13 +156,12 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager do
 
           op_name = operation.capitalize
           notification_expectations(mw_domain_server, op_name.to_sym, 'mw_op_failure')
-          timeline_server_expectations(mw_domain_server, op_name, "Failed")
         end
       end
     end
 
     describe 'domain stop operation' do
-      it 'should create a user notification and timeline event on success' do
+      it 'should create a user notification on success' do
         allow_any_instance_of(::Hawkular::Operations::Client).to receive(:invoke_generic_operation) do |_, &callback|
           callback.perform(:success, nil)
         end
@@ -190,10 +170,9 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager do
         MiqQueue.last.deliver
 
         notification_expectations(mw_domain, :Stop, 'mw_op_success')
-        timeline_domain_expectations('Success')
       end
 
-      it 'should create a user notification and timeline event on failure' do
+      it 'should create a user notification on failure' do
         allow_any_instance_of(::Hawkular::Operations::Client).to receive(:invoke_generic_operation) do |_, &callback|
           callback.perform(:failure, nil)
         end
@@ -202,7 +181,6 @@ describe ManageIQ::Providers::Hawkular::MiddlewareManager do
         MiqQueue.last.deliver
 
         notification_expectations(mw_domain, :Stop, 'mw_op_failure')
-        timeline_domain_expectations('Failed')
       end
     end
 
